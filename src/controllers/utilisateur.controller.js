@@ -8,7 +8,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
 // Importation des variables d'environement pour le token
-import { env } from './../../config.js';
+import { ENV } from './../../config.js';
 
 // Fonction pour connecter l'utilisateur
 const connecterUtilisateur = async (requete, reponse, next) => {
@@ -28,7 +28,7 @@ const connecterUtilisateur = async (requete, reponse, next) => {
 
         const token = jwt.sign(
             { id: utilisateurTrouve.id },
-            env.token,
+            ENV.token,
             { expiresIn: "24h" }
         );
 

@@ -1,4 +1,4 @@
-import { env } from './config.js';
+import { ENV } from './config.js';
 import express from 'express';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
@@ -25,7 +25,7 @@ app.use("/api/personnage", routeurPersonnage);
 app.use("/api/combat", routeurCombat);
 
 // Lancement de l'écoute du serveur
-const PORT = env.port;
+const PORT = ENV.port;
 app.listen(PORT, () => {
     console.log(`Serveur à l'écoute sur http://localhost:${PORT}`);
 });

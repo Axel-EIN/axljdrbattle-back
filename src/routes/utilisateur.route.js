@@ -1,4 +1,5 @@
 import express from "express";
+import verifyToken from '../middlewares/auth.js';
 
 import {
   inscrireUtilisateur,
@@ -13,7 +14,7 @@ const router = express.Router();
 router.post("/connecter", connecterUtilisateur);
 router.post("/inscrire", inscrireUtilisateur);
 router.get("/tous", recupererUtilisateurs);
-router.put("/modifier/:id", modifierUtilisateur);
-router.delete("/supprimer/:id", supprimerUtilisateur);
+router.put("/modifier/:id", verifyToken, modifierUtilisateur);
+router.delete("/supprimer/:id", verifyToken, supprimerUtilisateur);
 
 export default router;

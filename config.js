@@ -2,7 +2,7 @@ import dotenv from 'dotenv'; // Dépendance pour rendre accessible le .env
 
 dotenv.config(); // Execute la configuration
 
-export const env = { // Exporte la constante env avec les infos
+export const ENV = { // Exporte la constante env avec les infos
     port: process.env.PORT,
     token: process.env.TOKEN,
 

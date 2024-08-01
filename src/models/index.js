@@ -1,5 +1,5 @@
 // Import des variables d'environement
-import { env } from '../../config.js';
+import { ENV } from '../../config.js';
 
 // Import Sequelize
 import { Sequelize } from "sequelize";
@@ -11,11 +11,11 @@ import modeleCombat from "./combat.model.js";
 
 // Création de l'objet pour la connexion à la base de donnée avec Sequelize
 const connexionBDD = new Sequelize(
-    env.dbName,
-    env.dbUser,
-    env.dbPassword,
+    ENV.dbName,
+    ENV.dbUser,
+    ENV.dbPassword,
     {
-        host: env.dbHost,
+        host: ENV.dbHost,
         dialect: 'mysql'
     }
 );

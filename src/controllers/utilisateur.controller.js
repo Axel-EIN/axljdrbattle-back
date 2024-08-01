@@ -18,20 +18,23 @@ const connecterUtilisateur = async (requete, reponse, next) => {
         if (!utilisateurTrouve) // Si l'utilisateur n'est pas trouvé
             return reponse.status(404).json("L'utilisateur n'a pas été trouvé !");
 
-        const comparaisonDuMDP = await bcrypt.compare(
+            // Comparaison du MDP crypté avec la version tapé par l'utilisateur
+            const comparaisonDuMDP = await bcrypt.compare(
             requete.body.mdp,
             utilisateurTrouve.mdp
         );
 
-        if (!comparaisonDuMDP)
+        if (!comparaisonDuMDP) // Si la comparaison est fausse
             return reponse.status(400).json("L'identifiant ou le mot de passe est inccorect !");
 
+        // Si la comparaison est bonne, création du web token jwt
         const token = jwt.sign(
             { id: utilisateurTrouve.id },
             ENV.token,
             { expiresIn: "24h" }
         );
 
+        // Renvoi du token dans le cookie et de l'utilisateur en cours
         reponse
         .cookie("access_token", token, { httpOnly: true } )
         .status(200)

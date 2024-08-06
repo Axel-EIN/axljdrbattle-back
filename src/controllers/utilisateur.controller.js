@@ -42,7 +42,6 @@ const recupererUtilisateurs = async (requete, reponse, next) => {
 // Fonction pour modifier un utilisateur
 const modifierUtilisateur = async (requete, reponse, next) => {
     try {
-        console.log('test');
         const utilisateurTrouve = await Utilisateur.findByPk(requete.params.id); // Récupère un utilisateur par ID
 
         if (!utilisateurTrouve)

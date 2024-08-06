@@ -30,7 +30,7 @@ const connecterUtilisateur = async (requete, reponse, next) => {
         // Si la comparaison est bonne, création du web token jwt
         const token = jwt.sign(
             { id: utilisateurTrouve.id },
-            ENV.token,
+            ENV.TOKEN,
             { expiresIn: "24h" }
         );
 

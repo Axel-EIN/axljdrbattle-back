@@ -4,6 +4,7 @@ import verifyAdmin from '../middlewares/admin.js';
 
 import {
   inscrireUtilisateur,
+  creerUtilisateur,
   recupererUtilisateurs,
   modifierUtilisateur,
   supprimerUtilisateur,
@@ -15,6 +16,7 @@ import {
 const router = express.Router();
 
 router.post("/inscrire", inscrireUtilisateur);
+router.post("/creer", verifyToken, verifyAdmin, creerUtilisateur);
 router.get("/tous", recupererUtilisateurs);
 router.put("/modifier/:id", verifyToken, modifierUtilisateur);
 router.delete("/supprimer/:id", verifyToken, verifyAdmin, supprimerUtilisateur);

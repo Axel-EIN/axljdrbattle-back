@@ -8,6 +8,7 @@ import {
   modifierUtilisateur,
   supprimerUtilisateur,
   connecterUtilisateur,
+  deconnecterUtilisateur,
   recupererUtilisateurCourant
 } from "../controllers/utilisateur.controller.js";
 
@@ -18,6 +19,7 @@ router.get("/tous", recupererUtilisateurs);
 router.put("/modifier/:id", verifyToken, modifierUtilisateur);
 router.delete("/supprimer/:id", verifyToken, verifyAdmin, supprimerUtilisateur);
 router.post("/connecter", connecterUtilisateur);
+router.post("/deconnecter", verifyToken, deconnecterUtilisateur);
 router.get("/courant", verifyToken, recupererUtilisateurCourant);
 
 export default router;

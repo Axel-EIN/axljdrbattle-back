@@ -10,41 +10,6 @@ import jwt from "jsonwebtoken";
 // Importation des variables d'environement pour le token
 import { ENV } from './../../config.js';
 
-// Fonction pour connecter l'utilisateur
-const connecterUtilisateur = async (requete, reponse, next) => {
-    try {
-        const utilisateurTrouve = await Utilisateur.findOne( { where: { identifiant: requete.body.identifiant } } ); // Recherche de l'utilisateur
-        
-        if (!utilisateurTrouve) // Si l'utilisateur n'est pas trouvé
-            return reponse.status(404).json("L'utilisateur n'a pas été trouvé !");
-
-            // Comparaison du MDP crypté avec la version tapé par l'utilisateur
-            const comparaisonDuMDP = await bcrypt.compare(
-            requete.body.mdp,
-            utilisateurTrouve.mdp
-        );
-
-        if (!comparaisonDuMDP) // Si la comparaison est fausse
-            return reponse.status(400).json("L'identifiant ou le mot de passe est inccorect !");
-
-        // Si la comparaison est bonne, création du web token jwt
-        const token = jwt.sign(
-            { id: utilisateurTrouve.id },
-            ENV.TOKEN,
-            { expiresIn: "24h" }
-        );
-
-        // Renvoi du token dans le cookie et de l'utilisateur en cours
-        reponse
-        .cookie("access_token", token, { httpOnly: true } )
-        .status(200)
-        .json(utilisateurTrouve);
-    } catch (erreur) {
-        console.log(erreur);
-        reponse.status(500).json( { error: "Erreur interne lors de la connection !" } );
-    }
-}
-
 // Fonction pour inscrire l'utilisateur
 const inscrireUtilisateur = async (requete, reponse, next) => {
     try {
@@ -114,10 +79,51 @@ const supprimerUtilisateur = async (requete, reponse, next) => {
     }
 }
 
+// Fonction pour connecter l'utilisateur
+const connecterUtilisateur = async (requete, reponse, next) => {
+    try {
+        const utilisateurTrouve = await Utilisateur.findOne( { where: { identifiant: requete.body.identifiant } } ); // Recherche de l'utilisateur
+        
+        if (!utilisateurTrouve) // Si l'utilisateur n'est pas trouvé
+            return reponse.status(404).json("L'utilisateur n'a pas été trouvé !");
+
+            // Comparaison du MDP crypté avec la version tapé par l'utilisateur
+            const comparaisonDuMDP = await bcrypt.compare(
+            requete.body.mdp,
+            utilisateurTrouve.mdp
+        );
+
+        if (!comparaisonDuMDP) // Si la comparaison est fausse
+            return reponse.status(400).json("L'identifiant ou le mot de passe est inccorect !");
+
+        // Si la comparaison est bonne, création du web token jwt
+        const token = jwt.sign(
+            { id: utilisateurTrouve.id },
+            ENV.TOKEN,
+            { expiresIn: "24h" }
+        );
+
+        // Renvoi du token dans le cookie et de l'utilisateur en cours
+        reponse
+        .cookie("access_token", token, { httpOnly: true } )
+        .status(200)
+        .json(utilisateurTrouve);
+    } catch (erreur) {
+        console.log(erreur);
+        reponse.status(500).json( { error: "Erreur interne lors de la connection !" } );
+    }
+}
+
+// Fonction pour récuperer l'Utilisateur Courant qui a été crée au préalable par Json Web Token lors d'une connection et authentification réussi
+const recupererUtilisateurCourant = (requete, reponse) => {
+    return reponse.json(requete.user);
+} 
+
 export {
     connecterUtilisateur,
     inscrireUtilisateur,
     recupererUtilisateurs,
     modifierUtilisateur,
-    supprimerUtilisateur
+    supprimerUtilisateur,
+    recupererUtilisateurCourant
 }

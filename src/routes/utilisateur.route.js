@@ -1,5 +1,6 @@
 import express from "express";
 import verifyToken from '../middlewares/auth.js';
+import verifyAdmin from '../middlewares/admin.js';
 
 import {
   inscrireUtilisateur,
@@ -15,7 +16,7 @@ const router = express.Router();
 router.post("/inscrire", inscrireUtilisateur);
 router.get("/tous", recupererUtilisateurs);
 router.put("/modifier/:id", verifyToken, modifierUtilisateur);
-router.delete("/supprimer/:id", verifyToken, supprimerUtilisateur);
+router.delete("/supprimer/:id", verifyToken, verifyAdmin, supprimerUtilisateur);
 router.post("/connecter", connecterUtilisateur);
 router.get("/courant", verifyToken, recupererUtilisateurCourant);
 

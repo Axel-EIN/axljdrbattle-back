@@ -24,7 +24,7 @@ export default (connection, DataTypes) => {
             },
             role: {
                 type:   DataTypes.ENUM,
-                values: ['admin', 'user']
+                values: ['user', 'mj', 'admin']
             }
         },
         {

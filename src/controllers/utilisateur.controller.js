@@ -111,9 +111,19 @@ const connecterUtilisateur = async (requete, reponse, next) => {
         console.log(erreur);
         reponse.status(500).json( { error: "Erreur interne lors de la connection !" } );
     }
-}
+// Déconnecte l'utilisateur en supprimant le Cookie
+const deconnecterUtilisateur = async (requete, reponse, next) => {
+  try {
+    if (!requete.user) // requete.user est censé exister si l'utilisateur est connecté
+      return reponse.status(403).json("Vous devez être connecté pour  vous deconnecter !");
 
-// Fonction pour récuperer l'Utilisateur Courant qui a été crée au préalable par Json Web Token lors d'une connection et authentification réussi
+    reponse.clearCookie("access_token", { httpOnly: true }) // on détruit le cookie
+      .status(200).json("L'utilisateur a bien été déconnecté !");
+  } catch (erreur) {
+    console.log(erreur);
+    reponse.status(500).json({ error: "Erreur interne lors de la déconnection !" });
+  }
+};
 const recupererUtilisateurCourant = (requete, reponse) => {
     return reponse.json(requete.user);
 } 
@@ -124,5 +134,4 @@ export {
     recupererUtilisateurs,
     modifierUtilisateur,
     supprimerUtilisateur,
-    recupererUtilisateurCourant
-}
+  deconnecterUtilisateur,

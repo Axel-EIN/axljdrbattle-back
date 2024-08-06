@@ -18,7 +18,7 @@ const router = express.Router();
 router.post("/inscrire", inscrireUtilisateur);
 router.post("/creer", verifyToken, verifyAdmin, creerUtilisateur);
 router.get("/tous", recupererUtilisateurs);
-router.put("/modifier/:id", verifyToken, modifierUtilisateur);
+router.put("/modifier/:id", verifyToken, verifyAdmin, modifierUtilisateur);
 router.delete("/supprimer/:id", verifyToken, verifyAdmin, supprimerUtilisateur);
 router.post("/connecter", connecterUtilisateur);
 router.post("/deconnecter", verifyToken, deconnecterUtilisateur);

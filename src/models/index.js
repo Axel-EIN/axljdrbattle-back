@@ -11,11 +11,11 @@ import modeleCombat from "./combat.model.js";
 
 // Création de l'objet pour la connexion à la base de donnée avec Sequelize
 const connexionBDD = new Sequelize(
-    ENV.dbName,
-    ENV.dbUser,
-    ENV.dbPassword,
+    ENV.DB_NAME,
+    ENV.DB_USER,
+    ENV.DB_PASSWORD,
     {
-        host: ENV.dbHost,
+        host: ENV.DB_HOST,
         dialect: 'mysql'
     }
 );

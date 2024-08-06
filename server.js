@@ -25,7 +25,7 @@ app.use("/api/personnage", routeurPersonnage);
 app.use("/api/combat", routeurCombat);
 
 // Lancement de l'écoute du serveur
-const PORT = ENV.port;
+const PORT = ENV.PORT;
 app.listen(PORT, () => {
     console.log(`Serveur à l'écoute sur http://localhost:${PORT}`);
 });

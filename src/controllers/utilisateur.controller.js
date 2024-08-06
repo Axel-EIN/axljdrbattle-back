@@ -13,7 +13,7 @@ const inscrireUtilisateur = async (requete, reponse, next) => {
     reponse.status(201).json("L'Utilisateur a bien été inscrit !");
   } catch (erreur) {
     console.log(erreur);
-    reponse.status(500).json( {error: "Erreur interne lors de la création de l'utilisateur !" });
+    reponse.status(500).json( {error: "Erreur interne lors de l'inscription de l'utilisateur !" });
   }
 };
 

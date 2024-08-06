@@ -17,6 +17,20 @@ const inscrireUtilisateur = async (requete, reponse, next) => {
   }
 };
 
+// Creer un utilisateur
+const creerUtilisateur = async (requete, reponse, next) => {
+  try {
+    const motDePasseHache = await bcrypt.hash(requete.body.mdp, 10); // Hachage du mot de passe
+
+    await Utilisateur.create({ ...requete.body, mdp: motDePasseHache });
+
+    reponse.status(201).json("L'Utilisateur a bien été crée !");
+  } catch (erreur) {
+    console.log(erreur);
+    reponse.status(500).json({ error: "Erreur interne lors de la création de l'utilisateur !" });
+  }
+};
+
 // Récupérer tout les utilisateurs
 const recupererUtilisateurs = async (requete, reponse, next) => {
   try {
@@ -109,6 +123,7 @@ const recupererUtilisateurCourant = (requete, reponse) => {
 
 export {
   inscrireUtilisateur,
+  creerUtilisateur,
   recupererUtilisateurs,
   modifierUtilisateur,
   supprimerUtilisateur,

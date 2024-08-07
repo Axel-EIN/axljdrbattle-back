@@ -54,6 +54,11 @@ const modifierUtilisateur = async (requete, reponse, next) => {
     if (!utilisateurTrouve)
       return reponse.status(404).json("Cette utilisateur n'existe pas !");
 
+    if (requete.body.mdp) {
+      const motDePasseHache = await bcrypt.hash(requete.body.mdp, 10);
+      requete.body.mdp = motDePasseHache;
+    }
+
     await utilisateurTrouve.update(requete.body);
     reponse.status(200).json( {message: "L'utilisateur a bien été modifié !", utilisateurTrouve, });
   } catch (erreur) {

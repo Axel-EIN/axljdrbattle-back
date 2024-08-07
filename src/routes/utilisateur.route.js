@@ -6,6 +6,7 @@ import {
   inscrireUtilisateur,
   creerUtilisateur,
   recupererUtilisateurs,
+  recupererUnUtilisateur,
   modifierUtilisateur,
   supprimerUtilisateur,
   connecterUtilisateur,
@@ -18,6 +19,7 @@ const router = express.Router();
 router.post("/inscrire", inscrireUtilisateur);
 router.post("/creer", verifyToken, verifyAdmin, creerUtilisateur);
 router.get("/tous", recupererUtilisateurs);
+router.get("/un/:id", recupererUnUtilisateur);
 router.put("/modifier/:id", verifyToken, verifyAdmin, modifierUtilisateur);
 router.delete("/supprimer/:id", verifyToken, verifyAdmin, supprimerUtilisateur);
 router.post("/connecter", connecterUtilisateur);

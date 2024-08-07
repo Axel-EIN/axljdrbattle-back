@@ -6,6 +6,7 @@ import { Sequelize } from "sequelize";
 
 // Import des modèles
 import modeleUtilisateur from "./utilisateur.model.js";
+import modelePersonnage from "./personnage.model.js";
 
 // Création de l'objet pour la connexion à la base de donnée avec Sequelize
 const connexionBDD = new Sequelize(
@@ -27,8 +28,14 @@ try { // Exécution de la connexion
 
 // Mise en relation entre les modèles prédéfini et la connexion BDD
 modeleUtilisateur(connexionBDD, Sequelize);
+modelePersonnage(connexionBDD, Sequelize);
+
 // Récupération des modèles par destructuration
-const { Utilisateur } = connexionBDD.models;
+const { Utilisateur, Personnage } = connexionBDD.models;
+
+// Règles des cardinalités
+Utilisateur.hasMany(Personnage);
+Personnage.belongsTo(Utilisateur);
 
 // Syncrhonisation de la BDD
 await connexionBDD.sync(
@@ -38,5 +45,6 @@ console.log("Synchronisation de la base de données OK !");
 
 // export des Entités initiés
 export {
-    Utilisateur
+    Utilisateur,
+    Personnage
 }

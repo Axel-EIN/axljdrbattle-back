@@ -1,4 +1,4 @@
-// Importation de l'Objet Utilisateur initialisé et connecté à la base de données Sequelize
+// Importation de l'Objet Combat initialisé et connecté à la base de données Sequelize
 import { Combat } from "../models/index.js";
 
 // Fonction pour ajouter un combat
@@ -24,7 +24,7 @@ const recupererCombats = async (requete, reponse, next) => {
     }
 }
 
-// Fonction pour modifier un utilisateur
+// Fonction pour modifier un combat
 const modifierCombat = async (requete, reponse, next) => {
     try {
         const combatTrouve = await Combat.findByPk(requete.params.id); // Récupère un combat par ID
@@ -44,7 +44,7 @@ const modifierCombat = async (requete, reponse, next) => {
     }
 }
 
-// Fonction pour supprimer un utilisateur
+// Fonction pour supprimer un combat
 const supprimerCombat = async (requete, reponse, next) => {
     try {
         const combatTrouve = await Combat.findByPk(requete.params.id); // Récupère un combat par ID

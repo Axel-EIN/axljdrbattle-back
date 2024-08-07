@@ -51,7 +51,3 @@ export {
     Personnage,
     Combat
 }
-<<<<<<< HEAD
-
-=======
->>>>>>> dd69f52 ([TO SPLIT PACKAGE PERSONNAGE USER RELATIONS] added controller and route)

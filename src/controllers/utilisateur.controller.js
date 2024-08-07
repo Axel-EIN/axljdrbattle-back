@@ -1,6 +1,6 @@
-import { Utilisateur } from "../models/index.js"; // Importation du Modèle Utilisateur initialisé connecté à la base données Sequelize
-import bcrypt from "bcrypt"; // Importation de la bibliothèque bcrypt pour crypter le mot de passe
-import jwt from "jsonwebtoken"; // Importation de la bibliothèque jwt pour créer le cookie/token
+import { Utilisateur } from "../models/index.js"; // Modèle Utilisateur initialisé et connecté à la base données Sequelize
+import bcrypt from "bcrypt"; // Bibliothèque bcrypt pour crypter le mot de passe
+import jwt from "jsonwebtoken"; // Bibliothèque jwt pour créer le cookie/token
 import { ENV } from "./../../config.js";
 
 const inscrireUtilisateur = async (requete, reponse, next) => {
@@ -32,6 +32,19 @@ const recupererUtilisateurs = async (requete, reponse, next) => {
   } catch (erreur) {
     console.log(erreur);
     reponse.status(500).json( {error: "Erreur interne lors de la récupération des utilisateurs !"} );
+  }
+};
+
+const recupererUnUtilisateur = async (requete, reponse, next) => {
+  try {
+    const utilisateurTrouve = await Utilisateur.findByPk(requete.params.id);
+    if (!utilisateurTrouve)
+      return reponse.status(404).json("Cette utilisateur n'existe pas !");
+
+    reponse.status(200).json(utilisateurTrouve);
+  } catch (erreur) {
+    console.log(erreur);
+    reponse.status(500).json( {error: "Erreur interne lors de la récupération d'un utilisateur !"} );
   }
 };
 
@@ -104,6 +117,7 @@ export {
   inscrireUtilisateur,
   creerUtilisateur,
   recupererUtilisateurs,
+  recupererUnUtilisateur,
   modifierUtilisateur,
   supprimerUtilisateur,
   connecterUtilisateur,

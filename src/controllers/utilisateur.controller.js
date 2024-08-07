@@ -4,6 +4,44 @@ import { Utilisateur } from "../models/index.js";
 // Importation de la bibliothèque bcrypt pour crypter le mot de passe
 import bcrypt from "bcrypt";
 
+// Importation de la bibliothèque jwt pour créer le cookie/token
+import jwt from "jsonwebtoken";
+
+// Importation des variables d'environement pour le token
+import { env } from './../../config.js';
+
+// Fonction pour connecter l'utilisateur
+const connecterUtilisateur = async (requete, reponse, next) => {
+    try {
+        const utilisateurTrouve = await Utilisateur.findOne( { where: { identifiant: requete.body.identifiant } } ); // Recherche de l'utilisateur
+        
+        if (!utilisateurTrouve) // Si l'utilisateur n'est pas trouvé
+            return reponse.status(404).json("L'utilisateur n'a pas été trouvé !");
+
+        const comparaisonDuMDP = await bcrypt.compare(
+            requete.body.mdp,
+            utilisateurTrouve.mdp
+        );
+
+        if (!comparaisonDuMDP)
+            return reponse.status(400).json("L'identifiant ou le mot de passe est inccorect !");
+
+        const token = jwt.sign(
+            { id: utilisateurTrouve.id },
+            env.token,
+            { expiresIn: "24h" }
+        );
+
+        reponse
+        .cookie("access_token", token, { httpOnly: true } )
+        .status(200)
+        .json(utilisateurTrouve);
+    } catch (erreur) {
+        console.log(erreur);
+        reponse.status(500).json( { error: "Erreur interne lors de la connection !" } );
+    }
+}
+
 // Fonction pour inscrire l'utilisateur
 const inscrireUtilisateur = async (requete, reponse, next) => {
     try {
@@ -74,6 +112,7 @@ const supprimerUtilisateur = async (requete, reponse, next) => {
 }
 
 export {
+    connecterUtilisateur,
     inscrireUtilisateur,
     recupererUtilisateurs,
     modifierUtilisateur,

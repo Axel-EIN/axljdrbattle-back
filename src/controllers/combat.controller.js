@@ -17,10 +17,6 @@ const ajouterCombat = async (requete, reponse, next) => {
 const recupererCombats = async (requete, reponse, next) => {
     try {
         const toutCombats = await Combat.findAll();
-
-        if (toutCombats.length == 0)
-            return reponse.status(200).json("Il n'y a pas encore de combats !");
-
         reponse.status(200).json(toutCombats);
     } catch (erreur) {
         console.log(erreur);

@@ -5,6 +5,7 @@ import cors from 'cors';
 
 // Importation des routes
 import routeurUtilisateur from './src/routes/utilisateur.route.js';
+import routeurPersonnage from './src/routes/personnage.route.js';
 
 // Importation et connexion de la base de données
 import './src/models/index.js'; 
@@ -19,6 +20,7 @@ app.use(cors()); // Pour gérer la protection des CORS
 
 // Middleware to route
 app.use("/api/utilisateur", routeurUtilisateur);
+app.use("/api/personnage", routeurPersonnage);
 
 // Lancement de l'écoute du serveur
 const PORT = env.port;

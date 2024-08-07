@@ -6,7 +6,6 @@ import { Utilisateur } from "../models/index.js";
 const ajouterPersonnage = async (requete, reponse, next) => {
     try {
         const utilisateurTrouve = await Utilisateur.findByPk(requete.body.utilisateurID);
-        console.log('utilisateur ID : ', requete.body.utilisateurID);
 
         if (utilisateurTrouve) {
             await utilisateurTrouve.createPersonnage( requete.body );

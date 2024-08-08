@@ -125,7 +125,11 @@ const connecterUtilisateur = async (requete, reponse, next) => {
 
     const token = jwt.sign( { id: utilisateurTrouve.id }, ENV.TOKEN, { expiresIn: "24h" } ); // Création du web token jwt
     reponse
-      .cookie("access_token", token, { httpOnly: true }) // renvoi du cookier access token jwt
+      .cookie("access_token", token, {
+        httpOnly: true,
+        secure: true, // true in production only
+        sameSite: 'None', // can be 'strict' or 'lax or None'
+      }) // renvoi du cookier access token jwt
       .status(200).json(utilisateurTrouve); // renvoi de l'utilisateur en objet
   } catch (erreur) {
     console.log(erreur);

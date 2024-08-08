@@ -2,11 +2,15 @@ import { Utilisateur } from "../models/index.js"; // Modèle Utilisateur initial
 import bcrypt from "bcrypt"; // Bibliothèque bcrypt pour crypter le mot de passe
 import jwt from "jsonwebtoken"; // Bibliothèque jwt pour créer le cookie/token
 import { ENV } from "./../../config.js";
+import userFieldCheck from "../utils/userfieldcheck.js";
 
 const inscrireUtilisateur = async (requete, reponse, next) => {
   try {
-    const motDePasseHache = await bcrypt.hash(requete.body.mdp, 10);
-    await Utilisateur.create( {...requete.body, mdp: motDePasseHache, role: "user"} ); // On force le role user
+    const utilisateurNettoye = userFieldCheck(requete.body); // utilitaire pour enlever les prop. vide ou null et met un avatar par défaut
+    if (!utilisateurNettoye.mdp)
+      return reponse.status(500).json({ error: "Erreur, il n'y a pas de mot de passe !" });
+
+    await Utilisateur.create( {...utilisateurNettoye, role: "user"} ); // On force le role user à l'inscription
     reponse.status(201).json("L'Utilisateur a bien été inscrit !");
   } catch (erreur) {
     console.log(erreur);
@@ -16,10 +20,14 @@ const inscrireUtilisateur = async (requete, reponse, next) => {
 
 const creerUtilisateur = async (requete, reponse, next) => {
   try {
-    const motDePasseHache = await bcrypt.hash(requete.body.mdp, 10);
-    if (!requete.body.role)
-      requete.body.role = 'user';
-    await Utilisateur.create({ ...requete.body, mdp: motDePasseHache });
+    const utilisateurNettoye = userFieldCheck(requete.body); // utilitaire pour enlever les prop. vide ou null
+
+    if (!utilisateurNettoye.mdp)
+      return reponse.status(500).json({ error: "Erreur, il n'y a pas de mot de passe !" });
+
+    utilisateurNettoye.mdp = await bcrypt.hash(utilisateurNettoye.mdp, 10);
+
+    await Utilisateur.create(utilisateurNettoye);
     reponse.status(201).json("L'Utilisateur a bien été crée !");
   } catch (erreur) {
     console.log(erreur);
@@ -53,15 +61,18 @@ const recupererUnUtilisateur = async (requete, reponse, next) => {
 const modifierUtilisateur = async (requete, reponse, next) => {
   try {
     const utilisateurTrouve = await Utilisateur.findByPk(requete.params.id);
+
     if (!utilisateurTrouve)
-      return reponse.status(404).json("Cette utilisateur n'existe pas !");
+return reponse.status(404).json({error: "Cette utilisateur n'existe pas !"});
 
-    if (requete.body.mdp) {
-      const motDePasseHache = await bcrypt.hash(requete.body.mdp, 10);
-      requete.body.mdp = motDePasseHache;
-    }
+    const requeteBodyNettoye = userFieldCheck(requete.body); // utilitaire pour enlever les prop. vide ou null et met un avatar par défaut
 
-    await utilisateurTrouve.update(requete.body);
+    if (requeteBodyNettoye.mdp) // Si un changement de mdp est disponible
+      requeteBodyNettoye.mdp = await bcrypt.hash(requeteBodyNettoye.mdp, 10); // On hache le mdp
+
+
+    await utilisateurTrouve.update(requeteBodyNettoye);
+
     reponse.status(200).json( {message: "L'utilisateur a bien été modifié !", utilisateurTrouve, });
   } catch (erreur) {
     console.log(erreur);
@@ -72,11 +83,15 @@ const modifierUtilisateur = async (requete, reponse, next) => {
 const supprimerUtilisateur = async (requete, reponse, next) => {
   try {
     const utilisateurTrouve = await Utilisateur.findByPk(requete.params.id);
+
     if (!utilisateurTrouve)
-      return reponse.status(404).json("Cette utilisateur n'existe pas !");
+      return reponse.status(404).json({error: "Cette utilisateur n'existe pas !"});
+
+    if (utilisateurTrouve.id == requete.user.id)
+      return reponse.status(403).json( {error: "Vous ne pouvez vous supprimez !" });
 
     await utilisateurTrouve.destroy();
-    reponse.status(200).json( {message: "L'utilisateur a bien été supprimé !"} );
+    reponse.status(200).json("L'utilisateur a bien été supprimé !");
   } catch (erreur) {
     console.log(erreur);
     reponse.status(500).json( {error: "Erreur interne lors de la suppression de l'utilisateur !"} );
@@ -87,11 +102,11 @@ const connecterUtilisateur = async (requete, reponse, next) => {
   try {
     const utilisateurTrouve = await Utilisateur.findOne( {where: { identifiant: requete.body.identifiant }} ); // Recherche de l'utilisateur via son identifiant
     if (!utilisateurTrouve)
-      return reponse.status(404).json("L'utilisateur n'a pas été trouvé !");
+      return reponse.status(404).json({error: "Cette utilisateur n'existe pas !"});
 
     const comparaisonDuMDP = await bcrypt.compare( requete.body.mdp, utilisateurTrouve.mdp );
     if (!comparaisonDuMDP)
-      return reponse.status(400).json("L'identifiant ou le mot de passe est inccorect !");
+      return reponse.status(400).json({error: "Les identifiants sont inccorects !"});
 
     const token = jwt.sign( { id: utilisateurTrouve.id }, ENV.TOKEN, { expiresIn: "24h" } ); // Création du web token jwt
     reponse
@@ -106,7 +121,7 @@ const connecterUtilisateur = async (requete, reponse, next) => {
 const deconnecterUtilisateur = async (requete, reponse, next) => {
   try {
     if (!requete.user) // requete.user est censé exister si l'utilisateur est connecté
-      return reponse.status(403).json("Vous devez être connecté pour  vous deconnecter !");
+      return reponse.status(403).json({error: "Vous devez être connecté pour pouvoir vous deconnecter !"});
 
     reponse.clearCookie("access_token", { httpOnly: true }) // on détruit le cookie
       .status(200).json("L'utilisateur a bien été déconnecté !");

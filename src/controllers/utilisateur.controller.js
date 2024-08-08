@@ -17,6 +17,8 @@ const inscrireUtilisateur = async (requete, reponse, next) => {
 const creerUtilisateur = async (requete, reponse, next) => {
   try {
     const motDePasseHache = await bcrypt.hash(requete.body.mdp, 10);
+    if (!requete.body.role)
+      requete.body.role = 'user';
     await Utilisateur.create({ ...requete.body, mdp: motDePasseHache });
     reponse.status(201).json("L'Utilisateur a bien été crée !");
   } catch (erreur) {

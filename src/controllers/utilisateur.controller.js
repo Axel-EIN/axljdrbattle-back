@@ -3,6 +3,7 @@ import bcrypt from "bcrypt"; // Bibliothèque bcrypt pour crypter le mot de pass
 import jwt from "jsonwebtoken"; // Bibliothèque jwt pour créer le cookie/token
 import { ENV } from "./../../config.js";
 import userFieldCheck from "../utils/userfieldcheck.js";
+import removeFile from "../utils/removefile.js";
 
 const inscrireUtilisateur = async (requete, reponse, next) => {
   try {
@@ -27,6 +28,9 @@ const creerUtilisateur = async (requete, reponse, next) => {
 
     utilisateurNettoye.mdp = await bcrypt.hash(utilisateurNettoye.mdp, 10);
 
+    if (requete.files[0])
+      utilisateurNettoye.avatar = 'images/' + requete.files[0].fieldname + 's/' + requete.files[0].filename;
+
     await Utilisateur.create(utilisateurNettoye);
     reponse.status(201).json("L'Utilisateur a bien été crée !");
   } catch (erreur) {
@@ -49,7 +53,7 @@ const recupererUnUtilisateur = async (requete, reponse, next) => {
   try {
     const utilisateurTrouve = await Utilisateur.findByPk(requete.params.id);
     if (!utilisateurTrouve)
-      return reponse.status(404).json("Cette utilisateur n'existe pas !");
+      return reponse.status(404).json({error: "Cette utilisateur n'existe pas !"});
 
     reponse.status(200).json(utilisateurTrouve);
   } catch (erreur) {
@@ -63,15 +67,21 @@ const modifierUtilisateur = async (requete, reponse, next) => {
     const utilisateurTrouve = await Utilisateur.findByPk(requete.params.id);
 
     if (!utilisateurTrouve)
-return reponse.status(404).json({error: "Cette utilisateur n'existe pas !"});
+      return reponse.status(404).json({error: "Cette utilisateur n'existe pas !"});
 
     const requeteBodyNettoye = userFieldCheck(requete.body); // utilitaire pour enlever les prop. vide ou null et met un avatar par défaut
 
     if (requeteBodyNettoye.mdp) // Si un changement de mdp est disponible
       requeteBodyNettoye.mdp = await bcrypt.hash(requeteBodyNettoye.mdp, 10); // On hache le mdp
 
+    const ancienAvatar = utilisateurTrouve.avatar; // On stock une copie de l'ancien avatar
+    if (requete.files && requete.files[0])
+      requeteBodyNettoye.avatar = 'images/' + requete.files[0].fieldname + 's/' + requete.files[0].filename;
 
     await utilisateurTrouve.update(requeteBodyNettoye);
+
+    if (ancienAvatar)
+      removeFile(ancienAvatar); // On efface le fichier de l'ancien avatar
 
     reponse.status(200).json( {message: "L'utilisateur a bien été modifié !", utilisateurTrouve, });
   } catch (erreur) {
@@ -89,8 +99,13 @@ const supprimerUtilisateur = async (requete, reponse, next) => {
 
     if (utilisateurTrouve.id == requete.user.id)
       return reponse.status(403).json( {error: "Vous ne pouvez vous supprimez !" });
-
+    
+    const ancienAvatar = utilisateurTrouve.avatar; // On stock une copie de l'ancien avatar
     await utilisateurTrouve.destroy();
+
+    if (ancienAvatar)
+      removeFile(ancienAvatar);
+
     reponse.status(200).json("L'utilisateur a bien été supprimé !");
   } catch (erreur) {
     console.log(erreur);

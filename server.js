@@ -1,27 +1,21 @@
 import { ENV } from './config.js';
-import express from 'express'; // Module pour gérer les routes
-import cookieParser from 'cookie-parser'; // Module pour pouvoir lire les cookie
-// import cors from 'cors'; // cette manière de faire fonctionner les cors ne semble pas marcher sur Firefox
+import express from 'express';
+import cookieParser from 'cookie-parser'; // Module pour pouvoir lire les cookies
 
 // Importation des routes
 import routeurUtilisateur from './src/routes/utilisateur.route.js';
 import routeurPersonnage from './src/routes/personnage.route.js';
 import routeurCombat from './src/routes/combat.route.js';
 
-// Importation et connexion de la base de données
-import './src/models/index.js'; 
+import './src/models/index.js'; // Importation et connexion de la base de données
 
-// Lancement du serveur express
-const app = express();
+const app = express(); // Lancement du serveur express
 
 // Implémentation des middlewares
 app.use(express.json()); // Pour lire les données JSON
 app.use(cookieParser()); // Pour parser les cookies
-// app.use(cors({
-//     origin: "*"
-// })); // Pour gérer la protection des CORS, cette manière de faire fonctionner les cors ne semble pas marcher sur Firefox
 
-app.use((requete, reponse, next) => { // Autre methode pour faire fonctionner les cors
+app.use((requete, reponse, next) => { // Methode pour faire fonctionner les cors
     reponse.setHeader("Access-Control-Allow-Origin", "http://localhost:5173");
     reponse.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
     reponse.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");

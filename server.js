@@ -29,15 +29,8 @@ app.use((requete, reponse, next) => { // Autre methode pour faire fonctionner le
     return next();
 });
 
-app.use((err, requete, reponse, next) => { // Middleware pour tracker les erreurs
-    const status = err.status || 500;
-    const message = err.message || "Quelque chose s'est mal passée !";
-    return reponse.status(status).json({
-        success: false,
-        status,
-        message,
-    });
-});
+// Middleware qui rend le dossier /public accessible sur http://localhost:8080/
+app.use(express.static('public'));
 
 // Middleware pour connecter les routes
 app.use("/api/utilisateur", routeurUtilisateur);

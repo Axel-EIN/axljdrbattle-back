@@ -1,4 +1,5 @@
 import multer from "multer";
+import { checkAndCreateDir } from "../utils/managefiles.js";
 
 const MIME_TYPES = { // association nom et extension de fichier d'images
   "image/jpg": "jpg",
@@ -7,7 +8,8 @@ const MIME_TYPES = { // association nom et extension de fichier d'images
 };
 
 const storage = multer.diskStorage({
-  destination: (req, file, callback) => { // Crée le dossier de destination
+  destination: (req, file, callback) => {
+    checkAndCreateDir('images/' + file.fieldname + 's/') // Crée le dossier de destination s'il n'existe pas encore
     callback(null, "public/images/" + file.fieldname + 's' + '/'); // Avec file.fieldname + s on va uploader dans des dossiers spécifiques
   },
   filename: (req, file, callback) => { // Crée le nom du fichier

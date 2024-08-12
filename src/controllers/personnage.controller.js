@@ -25,10 +25,6 @@ const ajouterPersonnage = async (requete, reponse, next) => {
 const recupererPersonnages = async (requete, reponse, next) => {
     try {
         const toutPersonnages = await Personnage.findAll();
-
-        if (toutPersonnages.length == 0)
-            return reponse.status(200).json("Il n'y a pas encore de personnages !");
-
         reponse.status(200).json(toutPersonnages);
     } catch (erreur) {
         console.log(erreur);

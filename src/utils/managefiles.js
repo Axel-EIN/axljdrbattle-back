@@ -14,3 +14,11 @@ export function removeFile(publicFilePath) {
     console.log(`Le fichier ${publicFilePath} a bien été supprimé du disque.`);
   });
 }
+
+export function checkAndCreateDir(publicDirPath) {
+  const absoluteDirectoryPath = __dirname + '/../..' + '/public/' + publicDirPath;
+  if ( !fs.existsSync(absoluteDirectoryPath) ) {
+    fs.mkdirSync(absoluteDirectoryPath);
+    console.log('Le dossier' + ' ' + publicDirPath + ' ' + 'a bien été crée !');
+  }
+}

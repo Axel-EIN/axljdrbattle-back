@@ -28,6 +28,40 @@ const recupererUnUtilisateur = async (requete, reponse, next) => {
   }
 };
 
+const inscrireUtilisateur = async (requete, reponse, next) => {
+  try {
+    const utilisateurNettoye = userFieldCheck(requete.body); // utilitaire pour enlever les prop. vide ou null
+    if (!utilisateurNettoye.mdp)
+      return reponse.status(500).json( { error: "Erreur, il n'y a pas de mot de passe !" } ); // Créer la fonction Erreur dans userFieldCheck avec ThrowError?
+
+    utilisateurNettoye.mdp = await bcrypt.hash(utilisateurNettoye.mdp, 10);
+    await Utilisateur.create( { ...utilisateurNettoye, role: "user" } ); // On force le role user à l'inscription
+    reponse.status(201).json( { message: "L'Utilisateur a bien été inscrit !" } );
+  } catch (erreur) {
+    console.log(erreur);
+    reponse.status(500).json( { error: "Erreur interne lors de l'inscription de l'utilisateur !" } );
+  }
+};
+
+const creerUtilisateur = async (requete, reponse, next) => {
+  try {
+    const utilisateurNettoye = userFieldCheck(requete.body); // utilitaire pour enlever les prop. vide ou null
+    if (!utilisateurNettoye.mdp)
+      return reponse.status(500).json({ error: "Erreur, il n'y a pas de mot de passe !" });
+
+    utilisateurNettoye.mdp = await bcrypt.hash(utilisateurNettoye.mdp, 10);
+
+    if (requete.files && requete.files.length > 0) // Si des fichiers images sont présents par multer
+      requete.files.forEach( (file) => utilisateurNettoye[file.fieldname] = "images/" + file.fieldname + "s/" + file.filename ); // Pour chaque élément prépare la requete
+
+    await Utilisateur.create(utilisateurNettoye);
+    reponse.status(201).json( { message: "L'Utilisateur a bien été crée !" } );
+  } catch (erreur) {
+    console.log(erreur);
+    reponse.status(500).json( { error: "Erreur interne lors de la création de l'utilisateur !" } );
+  }
+};
+
 const modifierUtilisateur = async (requete, reponse, next) => {
   try {
     const utilisateurTrouve = await Utilisateur.findByPk(requete.params.id);
@@ -35,19 +69,25 @@ const modifierUtilisateur = async (requete, reponse, next) => {
     if (!utilisateurTrouve)
       return reponse.status(404).json( { error: "Cette utilisateur n'existe pas !" } );
 
-    const requeteBodyNettoye = userFieldCheck(requete.body); // utilitaire pour enlever les prop. vide ou null et met un avatar par défaut
+    const utilisateurNettoye = userFieldCheck(requete.body); // utilitaire pour enlever les prop. vide ou null
 
-    if (requeteBodyNettoye.mdp) // Si un changement de mdp est disponible
-      requeteBodyNettoye.mdp = await bcrypt.hash(requeteBodyNettoye.mdp, 10); // On hache le mdp
+    if (utilisateurTrouve.identifiant == 'Admin' && utilisateurNettoye.role && utilisateurNettoye.role != 'admin')
+      return reponse.status(403).json( { error: "Vous ne pouvez enlevez les droits à l'Administrateur original !" } );
 
-    const ancienAvatar = utilisateurTrouve.avatar; // On stock une copie de l'ancien avatar
-    if (requete.files && requete.files[0])
-      requeteBodyNettoye.avatar = 'images/' + requete.files[0].fieldname + 's/' + requete.files[0].filename;
+    if (utilisateurNettoye.mdp) // Si un changement de mdp est disponible
+      utilisateurNettoye.mdp = await bcrypt.hash(utilisateurNettoye.mdp, 10); // On hache le mdp
 
-    await utilisateurTrouve.update(requeteBodyNettoye);
+    if (requete.files && requete.files.length > 0) // Si des fichiers images sont présents par multer
+      requete.files.forEach( (file) => utilisateurNettoye[file.fieldname] = "images/" + file.fieldname + "s/" + file.filename ); // Pour chaque élément prépare la requete
+
+    let ancienAvatar;
+    if (utilisateurNettoye.avatar && utilisateurTrouve.avatar)
+      ancienAvatar = utilisateurTrouve.avatar;
+
+    await utilisateurTrouve.update(utilisateurNettoye);
 
     if (ancienAvatar)
-      removeFile(ancienAvatar); // On efface le fichier de l'ancien avatar
+      removeFile(ancienAvatar);
 
     reponse.status(200).json( { message: "L'utilisateur a bien été modifié !", utilisateurTrouve } );
   } catch (erreur) {
@@ -65,12 +105,13 @@ const supprimerUtilisateur = async (requete, reponse, next) => {
 
     if (utilisateurTrouve.id == requete.user.id)
       return reponse.status(403).json( { error: "Vous ne pouvez vous supprimez !" } );
-    
-    const ancienAvatar = utilisateurTrouve.avatar; // On stock une copie de l'ancien avatar
+
     await utilisateurTrouve.destroy();
 
-    if (ancienAvatar)
-      removeFile(ancienAvatar);
+    if (utilisateurTrouve.avatar)
+      removeFile(utilisateurTrouve.avatar);
+
+    // A faire : vérifier si l'utilisateur a des personnages et supprimer les fichiers images des personnages qui seront supprimés
 
     reponse.status(200).json( { message: "L'utilisateur a bien été supprimé !" } );
   } catch (erreur) {

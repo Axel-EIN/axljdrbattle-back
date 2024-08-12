@@ -1,6 +1,17 @@
 // Importation de l'Objet Combat initialisé et connecté à la base de données Sequelize
 import { Combat } from "../models/index.js";
 
+// Fonction pour récupérer tout les combats
+const recupererCombats = async (requete, reponse, next) => {
+    try {
+        const toutCombats = await Combat.findAll();
+        reponse.status(200).json(toutCombats);
+    } catch (erreur) {
+        console.log(erreur);
+        reponse.status(500).json({ error: "Erreur interne lors de la récupération des combats !" });
+    }
+}
+
 // Fonction pour ajouter un combat
 const ajouterCombat = async (requete, reponse, next) => {
     try {
@@ -10,17 +21,6 @@ const ajouterCombat = async (requete, reponse, next) => {
     } catch (erreur) {
         console.log(erreur);
         reponse.status(500).json({ error: "Erreur interne lors de la création du combat !" });
-    }
-}
-
-// Fonction pour récupérer tout les combats
-const recupererCombats = async (requete, reponse, next) => {
-    try {
-        const toutCombats = await Combat.findAll();
-        reponse.status(200).json(toutCombats);
-    } catch (erreur) {
-        console.log(erreur);
-        reponse.status(500).json({ error: "Erreur interne lors de la récupération des combats !" });
     }
 }
 

@@ -11,7 +11,7 @@ const recupererUtilisateurs = async (requete, reponse, next) => {
     reponse.status(200).json(toutLesUtilisateurs);
   } catch (erreur) {
     console.log(erreur);
-    reponse.status(500).json( {error: "Erreur interne lors de la récupération des utilisateurs !"} );
+    reponse.status(500).json( { error: "Erreur interne lors de la récupération des utilisateurs !" } );
   }
 };
 
@@ -19,12 +19,12 @@ const recupererUnUtilisateur = async (requete, reponse, next) => {
   try {
     const utilisateurTrouve = await Utilisateur.findByPk(requete.params.id);
     if (!utilisateurTrouve)
-      return reponse.status(404).json({error: "Cette utilisateur n'existe pas !"});
+      return reponse.status(404).json( { error: "Cette utilisateur n'existe pas !" } );
 
     reponse.status(200).json(utilisateurTrouve);
   } catch (erreur) {
     console.log(erreur);
-    reponse.status(500).json( {error: "Erreur interne lors de la récupération d'un utilisateur !"} );
+    reponse.status(500).json( { error: "Erreur interne lors de la récupération d'un utilisateur !" } );
   }
 };
 
@@ -33,7 +33,7 @@ const modifierUtilisateur = async (requete, reponse, next) => {
     const utilisateurTrouve = await Utilisateur.findByPk(requete.params.id);
 
     if (!utilisateurTrouve)
-      return reponse.status(404).json({error: "Cette utilisateur n'existe pas !"});
+      return reponse.status(404).json( { error: "Cette utilisateur n'existe pas !" } );
 
     const requeteBodyNettoye = userFieldCheck(requete.body); // utilitaire pour enlever les prop. vide ou null et met un avatar par défaut
 
@@ -49,10 +49,10 @@ const modifierUtilisateur = async (requete, reponse, next) => {
     if (ancienAvatar)
       removeFile(ancienAvatar); // On efface le fichier de l'ancien avatar
 
-    reponse.status(200).json( {message: "L'utilisateur a bien été modifié !", utilisateurTrouve, });
+    reponse.status(200).json( { message: "L'utilisateur a bien été modifié !", utilisateurTrouve } );
   } catch (erreur) {
     console.log(erreur);
-    reponse.status(500).json( {error: "Erreur interne lors de la modification de l'utilisateur !"} );
+    reponse.status(500).json( { error: "Erreur interne lors de la modification de l'utilisateur !" } );
   }
 };
 
@@ -61,10 +61,10 @@ const supprimerUtilisateur = async (requete, reponse, next) => {
     const utilisateurTrouve = await Utilisateur.findByPk(requete.params.id);
 
     if (!utilisateurTrouve)
-      return reponse.status(404).json({error: "Cette utilisateur n'existe pas !"});
+      return reponse.status(404).json( { error: "Cette utilisateur n'existe pas !" } );
 
     if (utilisateurTrouve.id == requete.user.id)
-      return reponse.status(403).json( {error: "Vous ne pouvez vous supprimez !" });
+      return reponse.status(403).json( { error: "Vous ne pouvez vous supprimez !" } );
     
     const ancienAvatar = utilisateurTrouve.avatar; // On stock une copie de l'ancien avatar
     await utilisateurTrouve.destroy();
@@ -72,47 +72,42 @@ const supprimerUtilisateur = async (requete, reponse, next) => {
     if (ancienAvatar)
       removeFile(ancienAvatar);
 
-    reponse.status(200).json("L'utilisateur a bien été supprimé !");
+    reponse.status(200).json( { message: "L'utilisateur a bien été supprimé !" } );
   } catch (erreur) {
     console.log(erreur);
-    reponse.status(500).json( {error: "Erreur interne lors de la suppression de l'utilisateur !"} );
+    reponse.status(500).json( { error: "Erreur interne lors de la suppression de l'utilisateur !" } );
   }
 };
 
 const connecterUtilisateur = async (requete, reponse, next) => {
   try {
-    const utilisateurTrouve = await Utilisateur.findOne( {where: { identifiant: requete.body.identifiant }} ); // Recherche de l'utilisateur via son identifiant
+    const utilisateurTrouve = await Utilisateur.findOne( { where: { identifiant: requete.body.identifiant } } ); // Recherche de l'utilisateur via son identifiant
     if (!utilisateurTrouve)
-      return reponse.status(404).json({error: "Cette utilisateur n'existe pas !"});
+      return reponse.status(404).json( { error: "Cette utilisateur n'existe pas !" } );
 
     const comparaisonDuMDP = await bcrypt.compare( requete.body.mdp, utilisateurTrouve.mdp );
     if (!comparaisonDuMDP)
-      return reponse.status(400).json({error: "Les identifiants sont inccorects !"});
+      return reponse.status(400).json( { error: "Les identifiants sont inccorects !" } );
 
-    const token = jwt.sign( { id: utilisateurTrouve.id }, ENV.TOKEN, { expiresIn: "24h" } ); // Création du web token jwt
-    reponse
-      .cookie("access_token", token, {
-        httpOnly: true,
-        secure: true, // true in production only
-        sameSite: 'None', // can be 'strict' or 'lax or None'
-      }) // renvoi du cookier access token jwt
-      .status(200).json(utilisateurTrouve); // renvoi de l'utilisateur en objet
+    const token = jwt.sign({ id: utilisateurTrouve.id }, ENV.TOKEN, { expiresIn: "24h" } ); // Création du web token jwt
+    reponse.cookie("access_token", token, { httpOnly: true, secure: true, sameSite: "None" }).status(200).json(utilisateurTrouve); // renvoi de l'utilisateur en objet
+    // renvoi du cookier access token jwt, sameSite peut être 'strict' or 'lax or None'
   } catch (erreur) {
     console.log(erreur);
-    reponse.status(500).json({ error: "Erreur interne lors de la connection !" });
+    reponse.status(500).json( { error: "Erreur interne lors de la connection !" } );
   }
 };
 
 const deconnecterUtilisateur = async (requete, reponse, next) => {
   try {
     if (!requete.user) // requete.user est censé exister si l'utilisateur est connecté
-      return reponse.status(403).json({error: "Vous devez être connecté pour pouvoir vous deconnecter !"});
+      return reponse.status(403).json( { error: "Vous devez être connecté pour pouvoir vous deconnecter !" } );
 
     reponse.clearCookie("access_token", { httpOnly: true }) // on détruit le cookie
-      .status(200).json("L'utilisateur a bien été déconnecté !");
+      .status(200).json( { message: "L'utilisateur a bien été déconnecté !" } );
   } catch (erreur) {
     console.log(erreur);
-    reponse.status(500).json({ error: "Erreur interne lors de la déconnection !" });
+    reponse.status(500).json({ error: "Erreur interne lors de la déconnection !" } );
   }
 };
 

@@ -1,72 +1,53 @@
-// Importation de l'Objet Combat initialisé et connecté à la base de données Sequelize
-import { Combat } from "../models/index.js";
+import { Combat } from "../models/index.js"; // Importation de l'Objet Combat initialisé et connecté à la base de données Sequelize
 
-// Fonction pour récupérer tout les combats
 const recupererCombats = async (requete, reponse, next) => {
-    try {
-        const toutCombats = await Combat.findAll();
-        reponse.status(200).json(toutCombats);
-    } catch (erreur) {
-        console.log(erreur);
-        reponse.status(500).json({ error: "Erreur interne lors de la récupération des combats !" });
-    }
-}
+  try {
+    const toutCombats = await Combat.findAll();
+    reponse.status(200).json(toutCombats);
+  } catch (erreur) {
+    console.log(erreur);
+    reponse.status(500).json( { error: "Erreur interne lors de la récupération des combats !" } );
+  }
+};
 
-// Fonction pour ajouter un combat
 const ajouterCombat = async (requete, reponse, next) => {
-    try {
-        await Combat.create( requete.body );
+  try {
+    await Combat.create(requete.body);
+    reponse.status(201).json("Le combat a bien été ajouté !");
+  } catch (erreur) {
+    console.log(erreur);
+    reponse.status(500).json( { error: "Erreur interne lors de la création du combat !" } );
+  }
+};
 
-        reponse.status(201).json("Le combat a bien été ajouté !");
-    } catch (erreur) {
-        console.log(erreur);
-        reponse.status(500).json({ error: "Erreur interne lors de la création du combat !" });
-    }
-}
-
-// Fonction pour modifier un combat
 const modifierCombat = async (requete, reponse, next) => {
-    try {
-        const combatTrouve = await Combat.findByPk(requete.params.id); // Récupère un combat par ID
+  try {
+    const combatTrouve = await Combat.findByPk(requete.params.id); // Récupère un combat par son ID
 
-        if (!combatTrouve)
-            return reponse.status(404).json("Ce combat n'existe pas !");
+    if (!combatTrouve)
+      return reponse.status(404).json("Ce combat n'existe pas !");
 
-        await combatTrouve.update(requete.body); // Modifie le combat
-        
-        reponse.status(200).json({
-            message: "Le combat a bien été modifié !",
-            combatTrouve,
-        });
-    } catch (erreur) {
-        console.log(erreur);
-        reponse.status(500).json({ error: "Erreur interne lors de la modification du combat !" });
-    }
-}
+    await combatTrouve.update(requete.body);
+    reponse.status(200).json( { message: "Le combat a bien été modifié !", combatTrouve } );
+  } catch (erreur) {
+    console.log(erreur);
+    reponse.status(500).json( { error: "Erreur interne lors de la modification du combat !" } );
+  }
+};
 
-// Fonction pour supprimer un combat
 const supprimerCombat = async (requete, reponse, next) => {
-    try {
-        const combatTrouve = await Combat.findByPk(requete.params.id); // Récupère un combat par ID
+  try {
+    const combatTrouve = await Combat.findByPk(requete.params.id); // Récupère un combat par son ID
 
-        if (!combatTrouve)
-            return reponse.status(404).json("Ce combat n'existe pas !");
+    if (!combatTrouve)
+      return reponse.status(404).json("Ce combat n'existe pas !");
 
-        await combatTrouve.destroy(); // Supprime le combat
+    await combatTrouve.destroy();
+    reponse.status(200).json( { message: "Le combat a bien été supprimé !", combatTrouve } );
+  } catch (erreur) {
+    console.log(erreur);
+    reponse.status(500).json( { error: "Erreur interne lors de la suppression du combat !" } );
+  }
+};
 
-        reponse.status(200).json({
-            message: "Le combat a bien été supprimé !",
-            combatTrouve,
-        });
-    } catch (erreur) {
-        console.log(erreur);
-        reponse.status(500).json( { error: "Erreur interne lors de la suppression du combat !" });
-    }
-}
-
-export {
-    ajouterCombat,
-    recupererCombats,
-    modifierCombat,
-    supprimerCombat
-}
+export { ajouterCombat, recupererCombats, modifierCombat, supprimerCombat };

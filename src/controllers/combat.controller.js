@@ -10,6 +10,19 @@ const recupererCombats = async (requete, reponse, next) => {
   }
 };
 
+const recupererUnCombat = async (requete, reponse, next) => {
+    try {
+        const combatTrouve = await Combat.findByPk( requete.params.id );
+        if (!combatTrouve)
+            return reponse.status(404).json( { error: "Ce combat n'existe pas !" } );
+
+        reponse.status(200).json(combatTrouve);
+    } catch (erreur) {
+        console.log(erreur);
+        reponse.status(500).json( { error: "Erreur interne lors de la récupération d'un combat !" } );
+    }
+}
+
 const ajouterCombat = async (requete, reponse, next) => {
   try {
     await Combat.create(requete.body);
@@ -50,4 +63,10 @@ const supprimerCombat = async (requete, reponse, next) => {
   }
 };
 
-export { ajouterCombat, recupererCombats, modifierCombat, supprimerCombat };
+export {
+    recupererCombats,
+    recupererUnCombat,
+    ajouterCombat,
+    modifierCombat,
+    supprimerCombat
+};

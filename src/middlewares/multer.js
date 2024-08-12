@@ -18,7 +18,7 @@ const storage = multer.diskStorage({
     nameDotArray.pop(); // enlève la dernière partie du tableau
     const nameNoExtension = nameDotArray.join("."); // rejoint pour reformer une chaîne
     const extension = MIME_TYPES[file.mimetype];
-    callback(null, nameNoExtension + Date.now() + "." + extension);
+    callback(null, nameNoExtension + '_' + Date.now() + "." + extension);
   },
 });
 

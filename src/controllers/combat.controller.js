@@ -13,7 +13,7 @@ const recupererCombats = async (requete, reponse, next) => {
 const ajouterCombat = async (requete, reponse, next) => {
   try {
     await Combat.create(requete.body);
-    reponse.status(201).json("Le combat a bien été ajouté !");
+    reponse.status(201).json( { message: "Le combat a bien été ajouté !" } );
   } catch (erreur) {
     console.log(erreur);
     reponse.status(500).json( { error: "Erreur interne lors de la création du combat !" } );
@@ -25,7 +25,7 @@ const modifierCombat = async (requete, reponse, next) => {
     const combatTrouve = await Combat.findByPk(requete.params.id); // Récupère un combat par son ID
 
     if (!combatTrouve)
-      return reponse.status(404).json("Ce combat n'existe pas !");
+        return reponse.status(404).json( { error: "Ce combat n'existe pas !" } );
 
     await combatTrouve.update(requete.body);
     reponse.status(200).json( { message: "Le combat a bien été modifié !", combatTrouve } );
@@ -40,7 +40,7 @@ const supprimerCombat = async (requete, reponse, next) => {
     const combatTrouve = await Combat.findByPk(requete.params.id); // Récupère un combat par son ID
 
     if (!combatTrouve)
-      return reponse.status(404).json("Ce combat n'existe pas !");
+      return reponse.status(404).json( { error: "Ce combat n'existe pas !" } );
 
     await combatTrouve.destroy();
     reponse.status(200).json( { message: "Le combat a bien été supprimé !", combatTrouve } );

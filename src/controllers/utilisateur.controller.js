@@ -3,41 +3,7 @@ import bcrypt from "bcrypt"; // Bibliothèque bcrypt pour crypter le mot de pass
 import jwt from "jsonwebtoken"; // Bibliothèque jwt pour créer le cookie/token
 import { ENV } from "./../../config.js";
 import userFieldCheck from "../utils/userfieldcheck.js";
-import removeFile from "../utils/removefile.js";
-
-const inscrireUtilisateur = async (requete, reponse, next) => {
-  try {
-    const utilisateurNettoye = userFieldCheck(requete.body); // utilitaire pour enlever les prop. vide ou null et met un avatar par défaut
-    if (!utilisateurNettoye.mdp)
-      return reponse.status(500).json({ error: "Erreur, il n'y a pas de mot de passe !" });
-
-    await Utilisateur.create( {...utilisateurNettoye, role: "user"} ); // On force le role user à l'inscription
-    reponse.status(201).json("L'Utilisateur a bien été inscrit !");
-  } catch (erreur) {
-    console.log(erreur);
-    reponse.status(500).json( {error: "Erreur interne lors de l'inscription de l'utilisateur !" });
-  }
-};
-
-const creerUtilisateur = async (requete, reponse, next) => {
-  try {
-    const utilisateurNettoye = userFieldCheck(requete.body); // utilitaire pour enlever les prop. vide ou null
-
-    if (!utilisateurNettoye.mdp)
-      return reponse.status(500).json({ error: "Erreur, il n'y a pas de mot de passe !" });
-
-    utilisateurNettoye.mdp = await bcrypt.hash(utilisateurNettoye.mdp, 10);
-
-    if (requete.files[0])
-      utilisateurNettoye.avatar = 'images/' + requete.files[0].fieldname + 's/' + requete.files[0].filename;
-
-    await Utilisateur.create(utilisateurNettoye);
-    reponse.status(201).json("L'Utilisateur a bien été crée !");
-  } catch (erreur) {
-    console.log(erreur);
-    reponse.status(500).json({ error: "Erreur interne lors de la création de l'utilisateur !" });
-  }
-};
+import { removeFile } from "../utils/managefiles.js";
 
 const recupererUtilisateurs = async (requete, reponse, next) => {
   try {

@@ -6,7 +6,7 @@ export default (connection, DataTypes) => {
                 type: DataTypes.STRING,
                 allowNull: false,
             },
-            status: {
+            statut: {
                 type:   DataTypes.ENUM,
                 values: ['waiting', 'started', 'finished']
             }

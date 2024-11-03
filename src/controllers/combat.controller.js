@@ -74,12 +74,53 @@ const ajouterCombat = async (requete, reponse, next) => {
 
 const modifierCombat = async (requete, reponse, next) => {
   try {
-    const combatTrouve = await Combat.findByPk(requete.params.id); // Récupère un combat par son ID
+    const combatTrouve = await Combat.findByPk(requete.params.id, { include: [Participation]}); // Récupère un combat par son ID
     if (!combatTrouve)
         return reponse.status(404).json( { error: "Ce combat n'existe pas !" } );
+
     if ( ['waiting', 'started', 'finished'].includes(requete.body.statut) == false )
       delete requete.body.statut;
+
     await combatTrouve.update(requete.body);
+
+    // Update Participations
+    const editerSupprimerAjouterParticipation = async (requeteTeam, teamNumber) => {
+
+      // edit or delete
+      for (const participationExistante of combatTrouve.dataValues.Participations) {
+        let trouvee = false;
+        for (const participationModifiee of requeteTeam) {
+          if (participationExistante.PersonnageId == participationModifiee.value) {
+            trouvee = true;
+            await participationExistante.update({ PersonnageId: participationModifiee.value, team: teamNumber });
+            break;
+          }
+        }
+        if (trouvee == false)
+          await participationExistante.destroy();
+      }
+
+      // Add if not found
+      for (const participationModifiee of requeteTeam) {
+        let trouvee = false;
+        for (const participationExistante of combatTrouve.dataValues.Participations) {
+          if (participationModifiee.value == participationExistante) {
+            trouvee = true;
+            break;
+          }
+        }
+        if (trouvee == false) {
+          await combatTrouve.createParticipation({ PersonnageId: participationModifiee.value, team: teamNumber } );
+        }
+      }
+    }
+
+    if (requete.body.teamA)
+      editerSupprimerAjouterParticipation(requete.body.teamA, 1);
+
+    if (requete.body.teamB)
+      editerSupprimerAjouterParticipation(requete.body.teamB, 2);
+ 
     reponse.status(200).json( { message: "Le combat a bien été modifié !", combatTrouve } );
   } catch (erreur) {
     console.log(erreur);

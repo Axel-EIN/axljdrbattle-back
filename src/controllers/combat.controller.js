@@ -1,4 +1,7 @@
 import { Combat } from "../models/index.js"; // Importation de l'Objet Combat initialisé et connecté à la base de données Sequelize
+// ====================
+// === RETRIEVE ALL ===
+// ====================
 
 const recupererCombats = async (requete, reponse, next) => {
   try {
@@ -9,6 +12,11 @@ const recupererCombats = async (requete, reponse, next) => {
     reponse.status(500).json( { error: "Erreur interne lors de la récupération des combats !" } );
   }
 };
+
+
+// ====================
+// === RETRIEVE ONE ===
+// ====================
 
 const recupererUnCombat = async (requete, reponse, next) => {
     try {
@@ -22,6 +30,11 @@ const recupererUnCombat = async (requete, reponse, next) => {
     }
 }
 
+
+// ==================
+// === CREATE ONE ===
+// ==================
+
 const ajouterCombat = async (requete, reponse, next) => {
   try {
     if ( ['waiting', 'started', 'finished'].includes(requete.body.statut) == false )
@@ -33,6 +46,11 @@ const ajouterCombat = async (requete, reponse, next) => {
     reponse.status(500).json( { error: "Erreur interne lors de la création du combat !" } );
   }
 };
+
+
+// ==================
+// === UPDATE ONE ===
+// ==================
 
 const modifierCombat = async (requete, reponse, next) => {
   try {
@@ -48,6 +66,11 @@ const modifierCombat = async (requete, reponse, next) => {
     reponse.status(500).json( { error: "Erreur interne lors de la modification du combat !" } );
   }
 };
+
+
+// ==================
+// === DELETE ONE ===
+// ==================
 
 const supprimerCombat = async (requete, reponse, next) => {
   try {

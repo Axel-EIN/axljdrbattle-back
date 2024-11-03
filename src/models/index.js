@@ -8,6 +8,7 @@ import { Sequelize } from "sequelize";
 import modeleUtilisateur from "./utilisateur.model.js";
 import modelePersonnage from "./personnage.model.js";
 import modeleCombat from "./combat.model.js";
+import modeleParticipation from "./participation.model.js";
 
 // Création de l'objet pour la connexion à la base de donnée avec Sequelize
 const connexionBDD = new Sequelize(
@@ -31,13 +32,20 @@ try { // Exécution de la connexion
 modeleUtilisateur(connexionBDD, Sequelize);
 modelePersonnage(connexionBDD, Sequelize);
 modeleCombat(connexionBDD, Sequelize);
+modeleParticipation(connexionBDD, Sequelize);
 
 // Récupération des modèles par destructuration
-const { Utilisateur, Personnage, Combat } = connexionBDD.models; // Nous sommes obligé d'utilisé la propriété .models
+const { Utilisateur, Personnage, Combat, Participation } = connexionBDD.models; // Nous sommes obligé d'utilisé la propriété .models
 
 // Règles des cardinalités
 Utilisateur.hasMany(Personnage);
 Personnage.belongsTo(Utilisateur);
+
+Personnage.belongsToMany(Combat, { through: Participation });
+Combat.belongsToMany(Personnage, { through: Participation });
+
+Combat.hasMany(Participation);
+Participation.belongsTo(Combat);
 
 // Syncrhonisation de la BDD
 await connexionBDD.sync(
@@ -49,5 +57,6 @@ console.log("Synchronisation de la base de données OK !");
 export {
     Utilisateur,
     Personnage,
-    Combat
+    Combat,
+    Participation
 }

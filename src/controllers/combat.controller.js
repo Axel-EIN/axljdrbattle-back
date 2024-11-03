@@ -1,11 +1,13 @@
 import { Combat } from "../models/index.js"; // Importation de l'Objet Combat initialisé et connecté à la base de données Sequelize
+import { Personnage } from "../models/index.js"; // Importation de l'Objet Participation initialisé et connecté à la base de données Sequelize
+
 // ====================
 // === RETRIEVE ALL ===
 // ====================
 
 const recupererCombats = async (requete, reponse, next) => {
   try {
-    const toutCombats = await Combat.findAll();
+    const toutCombats = await Combat.findAll({ include: [Personnage] });
     reponse.status(200).json(toutCombats);
   } catch (erreur) {
     console.log(erreur);

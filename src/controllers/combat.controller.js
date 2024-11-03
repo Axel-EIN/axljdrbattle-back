@@ -44,8 +44,23 @@ const ajouterCombat = async (requete, reponse, next) => {
   try {
     if ( ['waiting', 'started', 'finished'].includes(requete.body.statut) == false )
       requete.body.statut = 'waiting';
-    await Combat.create(requete.body);
-    reponse.status(201).json( { message: "Le combat a bien été ajouté !" } );
+    const nouveauCombat = await Combat.create(requete.body);
+
+    // Add Participations
+    const ajouterParticipation = (requeteTeam, teamNumber) => {
+      requeteTeam.forEach( async (uneParticipation) => {
+          if (uneParticipation.value != '' && uneParticipation.value > 0)
+            await nouveauCombat.createParticipation( { PersonnageId: uneParticipation.value, team: teamNumber } );
+      });
+    }
+
+    if (requete.body.teamA)
+      ajouterParticipation(requete.body.teamA, 1);
+
+    if (requete.body.teamB)
+      ajouterParticipation(requete.body.teamB, 2);
+
+    reponse.status(201).json( { message: "Le combat et les participations ont bien été ajouté !" } );
   } catch (erreur) {
     console.log(erreur);
     reponse.status(500).json( { error: "Erreur interne lors de la création du combat !" } );

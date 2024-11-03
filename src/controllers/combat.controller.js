@@ -1,4 +1,5 @@
 import { Combat } from "../models/index.js"; // Importation de l'Objet Combat initialisé et connecté à la base de données Sequelize
+import { Participation } from "../models/index.js"; // Importation de l'Objet Participation initialisé et connecté à la base de données Sequelize
 import { Personnage } from "../models/index.js"; // Importation de l'Objet Participation initialisé et connecté à la base de données Sequelize
 
 // ====================
@@ -22,9 +23,11 @@ const recupererCombats = async (requete, reponse, next) => {
 
 const recupererUnCombat = async (requete, reponse, next) => {
     try {
-        const combatTrouve = await Combat.findByPk( requete.params.id );
+        const combatTrouve = await Combat.findByPk( requete.params.id, { include: [Personnage, Participation]} );
+
         if (!combatTrouve)
             return reponse.status(404).json( { error: "Ce combat n'existe pas !" } );
+
         reponse.status(200).json(combatTrouve);
     } catch (erreur) {
         console.log(erreur);

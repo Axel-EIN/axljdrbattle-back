@@ -135,9 +135,13 @@ const modifierCombat = async (requete, reponse, next) => {
 
 const supprimerCombat = async (requete, reponse, next) => {
   try {
-    const combatTrouve = await Combat.findByPk(requete.params.id); // Récupère un combat par son ID
+    const combatTrouve = await Combat.findByPk(requete.params.id, { include: [Participation]}); // Récupère un combat par son ID
     if (!combatTrouve)
       return reponse.status(404).json( { error: "Ce combat n'existe pas !" } );
+
+    // Delete Participations
+    combatTrouve.dataValues.Participations.forEach( async (uneParticipation) => await uneParticipation.destroy() );
+
     await combatTrouve.destroy();
     reponse.status(200).json( { message: "Le combat a bien été supprimé !", combatTrouve } );
   } catch (erreur) {

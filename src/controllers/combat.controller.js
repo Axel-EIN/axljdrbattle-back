@@ -1,6 +1,7 @@
 import { Combat } from "../models/index.js"; // Importation de l'Objet Combat initialisé et connecté à la base de données Sequelize
 import { Participation } from "../models/index.js"; // Importation de l'Objet Participation initialisé et connecté à la base de données Sequelize
 import { Personnage } from "../models/index.js"; // Importation de l'Objet Participation initialisé et connecté à la base de données Sequelize
+import { io } from "../services/socket.js"; // Importation de la lib IO depuis le service socket
 
 // ====================
 // === RETRIEVE ALL ===
@@ -60,6 +61,7 @@ const ajouterCombat = async (requete, reponse, next) => {
     if (requete.body.teamB)
       ajouterParticipation(requete.body.teamB, 2);
 
+    io.emit('newBattle', nouveauCombat.toJSON()); // Emission d'un signal websocket newBattle avec l'objet crée
     reponse.status(201).json( { message: "Le combat et les participations ont bien été ajouté !" } );
   } catch (erreur) {
     console.log(erreur);

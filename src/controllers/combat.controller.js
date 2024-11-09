@@ -123,6 +123,7 @@ const modifierCombat = async (requete, reponse, next) => {
     if (requete.body.teamB)
       editerSupprimerAjouterParticipation(requete.body.teamB, 2);
  
+    io.emit('editedBattle', combatTrouve.toJSON()); // signal websocket événement editedBattle avec objet edité
     reponse.status(200).json( { message: "Le combat a bien été modifié !", combatTrouve } );
   } catch (erreur) {
     console.log(erreur);

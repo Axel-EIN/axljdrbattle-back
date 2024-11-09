@@ -145,8 +145,10 @@ const supprimerCombat = async (requete, reponse, next) => {
     // Delete Participations
     combatTrouve.dataValues.Participations.forEach( async (uneParticipation) => await uneParticipation.destroy() );
 
+    const combatSupprime = {...combatTrouve.dataValues};
     await combatTrouve.destroy();
-    reponse.status(200).json( { message: "Le combat a bien été supprimé !", combatTrouve } );
+    io.emit('deletedBattle', combatSupprime); // signal websocket deletedBattle avec l'objet effacé
+    reponse.status(200).json( { message: "Le combat a bien été supprimé !", combatSupprime } );
   } catch (erreur) {
     console.log(erreur);
     reponse.status(500).json( { error: "Erreur interne lors de la suppression du combat !" } );

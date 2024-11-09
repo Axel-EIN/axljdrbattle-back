@@ -18,6 +18,11 @@ export default (sequelize, DataTypes) => {
             portrait: {
                 type: DataTypes.STRING,
                 allowNull: true
+            },
+            HP: {
+                type: DataTypes.SMALLINT,
+                allowNull: false,
+                defaultValue: 100,
             }
         },
         {

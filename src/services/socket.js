@@ -11,14 +11,14 @@ const io = new Server(server, { // Création d'un serveur Web Socket à partir d
 });
 
 io.on("connection", (socket) => { // Ecouteur d'évévenement sur la connection au socket
-  console.log(("Le Socket est bien connecté !")); // Affichage d'un message dans la console lorsque le socket se connect
+  console.log(`Le Socket ${socket.id} est bien connecté !`); // Affichage d'un message dans la console lorsque le socket se connect
 
   socket.on("disconnect", () => { // Affichage d'un message dans la console lorsque le socket est déconnecté
-    console.log("Le Socket vient de se déconnecter !");
+    console.log(`Le Socket ${socket.id} vient de se déconnecter !`);
   });
 
   socket.on("error", (error) => {
-    console.log("Le Socket vient de générer une erreur:", error);
+    console.log(`Le Socket ${socket.id} vient de générer une erreur:`, error);
   });
 });
 

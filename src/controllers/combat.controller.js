@@ -31,7 +31,7 @@ const recupererUnCombat = async (requete, reponse) => {
         {model: Participation, include: [Personnage]},
         {model: Participation, as: 'TourCourant', include: [Personnage]}
       ]});
-        if (!combatTrouve)
+      if (!combatTrouve)
             return reponse.status(404).json({ error: "Ce combat n'existe pas !" }); // => 404
         reponse.status(200).json(combatTrouve); // => REPONSE Combat
     }
@@ -101,8 +101,8 @@ const modifierCombat = async (requete, reponse) => {
           }
         }
         if (trouvee === false) await combatTrouve.createParticipation({ PersonnageId: tableauUnique[j].valueID, team: tableauUnique[j].team }); // Crée Participation
-        }
       }
+    }
  
     io.emit('editedBattle'); // => IO Event
     reponse.status(200).json({ message: "Le combat a bien été modifié !", combatTrouve }); // => REPONSE Combat
@@ -178,7 +178,7 @@ const recommencerCombat = async (requete, reponse) => {
     await combatTrouve.setTourCourant(null); // Réinitialise Tour Courant
     combatTrouve.Participations.forEach(
       async (participation) => await participation.update({ initiative: 0, posture: 'attaque', isPlayed: false })); // Réunitialise Iniative Posture isPlayed
-
+    
     io.emit('restartedBattle'); // => IO Event
     reponse.status(200).json({ message: "Le combat a bien été réinitialisé !" });
   }
@@ -206,10 +206,38 @@ const arreterCombat = async (requete, reponse) => {
     reponse.status(500).json({ error: "Erreur interne lors de l'arrêt du combat !" });
   }
 }
+
+
+// ==================
+// === JOUER TOUR ===
+// ==================
+
+const jouerTour = async (requete, reponse) => {
+  try {
+    const combatTrouve = await Combat.findByPk(requete.params.id, { include: [{ model: Participation, as: 'TourCourant', include: [Personnage] }]});
+    if (!combatTrouve) return reponse.status(404).json({ error: "Ce combat n'existe pas !" }); // => 404
+
+    if (requete.user.toJSON().id != combatTrouve.TourCourant.Personnage.dataValues.UtilisateurId)
+      return reponse.status(403).json({ error: "Désolé ! Mais ce n'est pas encore à votre tour de jouer !" }); // => 403
+
+    await combatTrouve.TourCourant.update({ posture: requete.body.posture, isPlayed: true }); // Edite Participation Courante
+    const combatParticipations = await combatTrouve.getParticipations();
+    let toursRestants = combatParticipations.filter(
+      (participation) => participation.dataValues.isPlayed === false).sort((a,b) =>  b.dataValues.initiative - a.dataValues.initiative);
+
+    if (toursRestants.length === 0) { // Tout le monde a joué
+      await combatTrouve.update({ roundCourant: combatTrouve.dataValues.roundCourant + 1 }); // roundCourant +1
+      combatParticipations.forEach(async (participation) => await participation.update({ isPlayed: false })); // Réinitialisation
+      toursRestants = combatParticipations.sort ((a, b) => b.dataValues.initiative - a.dataValues.initiative);
+    }
+    
+    await combatTrouve.setTourCourant(toursRestants[0]); // Edite Tour Courant
+    io.emit('nextTurn'); // => IO Event
+    reponse.status(200).json({ message: "Le tour a bien été joué !" });
   }
   catch (erreur) {
     console.log(erreur);
-    reponse.status(500).json( { error: "Erreur interne lors de l'arrêt du combat !" } );
+    reponse.status(500).json({ error: "Erreur interne lors du tour de jeu !" });
   }
 }
 
@@ -222,4 +250,5 @@ export {
     demarrerCombat,
     recommencerCombat,
     arreterCombat,
+    jouerTour,
 };

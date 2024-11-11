@@ -146,10 +146,53 @@ const supprimerCombat = async (requete, reponse) => {
   }
 };
 
+
+// =============
+// === START ===
+// =============
+
+const demarrerCombat = async (requete, reponse) => {
+  try {
+    const combatTrouve = await Combat.findByPk(requete.params.id, { include: [
+      { model: Participation, include: [ { model: Personnage, as: 'Personnage' } ] },
+      { model: Personnage, as: 'tourcourant' },
+      { model: Personnage, as: 'Personnages'},
+    ]});
+
+    if (!combatTrouve)
+      return reponse.status(404).json( { error: "Ce combat n'existe pas !" } ); // => 404
+
+    await combatTrouve.update({ statut: 'started' }); // Update Combat
+
+    if (combatTrouve.dataValues.roundCourant === 0) {
+      for (let i = 0; i < combatTrouve.Participations.length; i++)
+        await combatTrouve.Participations[i].update( { initiative: Math.floor(100 * Math.random()) } ); // Update Participation.Initiative
+
+      const sortedParticipations = combatTrouve.Participations.sort( (a,b) =>  b.dataValues.initiative - a.dataValues.initiative ); // Sort
+
+      await combatTrouve.update({ roundCourant: 1}); // Update Combat.roundCourant = 1
+      await combatTrouve.setTourcourant(sortedParticipations[0].Personnage); // Update Combat.toucourant = Personnage
+
+      const combatModifie = {...combatTrouve.toJSON(), tourcourant: sortedParticipations[0].Personnage.dataValues};
+      io.emit('initiativeRolled', combatModifie); // => IO Event
+      reponse.status(200).json( { message: "Le combat a bien été démarré !", combatTrouve } ); // => REPONSE combat
+    } else {
+      io.emit('resumedBattle'); // => IO Event
+      reponse.status(200).json( { message: "Le combat est de redémarré !", combatTrouve } ); // => REPONSE combat
+    }
+  }
+  catch (erreur) {
+    console.log(erreur);
+    reponse.status(500).json( { error: "Erreur interne lors du démarrage du combat !" } );
+  }
+}
+
+
 export {
     recupererCombats,
     recupererUnCombat,
     ajouterCombat,
     modifierCombat,
-    supprimerCombat
+    supprimerCombat,
+    demarrerCombat,
 };

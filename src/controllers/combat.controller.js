@@ -215,6 +215,27 @@ const recommencerCombat = async (requete, reponse) => {
   }
 }
 
+
+// ============
+// === STOP ===
+// ============
+
+const arreterCombat = async (requete, reponse) => {
+  try {
+    const combatTrouve = await Combat.findByPk(requete.params.id);
+    if (!combatTrouve)
+      return reponse.status(404).json( { error: "Ce combat n'existe pas !" } ); // => 404
+
+    combatTrouve.update({statut: 'paused'}); // Update Combat.statut
+    io.emit('pausedBattle', combatTrouve); // => IO Event
+    reponse.status(200).json( { message: "Le combat a bien été arrêté !", combatTrouve } ); // REPONSE combat
+  }
+  catch (erreur) {
+    console.log(erreur);
+    reponse.status(500).json( { error: "Erreur interne lors de l'arrêt du combat !" } );
+  }
+}
+
 export {
     recupererCombats,
     recupererUnCombat,
@@ -223,4 +244,5 @@ export {
     supprimerCombat,
     demarrerCombat,
     recommencerCombat,
+    arreterCombat,
 };

@@ -72,35 +72,29 @@ const ajouterCombat = async (requete, reponse) => {
 // === UPDATE ONE ===
 // ==================
 
-const modifierCombat = async (requete, reponse, next) => {
+const modifierCombat = async (requete, reponse) => {
   try {
-    const combatTrouve = await Combat.findByPk(requete.params.id, { include: [Participation]}); // Récupère un combat par son ID
+    const combatTrouve = await Combat.findByPk(requete.params.id, { include: [Participation]});
+
     if (!combatTrouve)
-        return reponse.status(404).json( { error: "Ce combat n'existe pas !" } );
+        return reponse.status(404).json( { error: "Ce combat n'existe pas !" } ); // => 404
 
-    if ( ['waiting', 'started', 'finished'].includes(requete.body.statut) == false )
-      delete requete.body.statut;
+    await combatTrouve.update(requete.body); // Update Combat
 
-    await combatTrouve.update(requete.body);
-
-    // Update Participations
     const editerSupprimerAjouterParticipation = async (requeteTeam, teamNumber) => {
-
-      // edit or delete
       for (const participationExistante of combatTrouve.dataValues.Participations) {
         let trouvee = false;
         for (const participationModifiee of requeteTeam) {
           if (participationExistante.PersonnageId == participationModifiee.value) {
             trouvee = true;
-            await participationExistante.update({ PersonnageId: participationModifiee.value, team: teamNumber });
+            await participationExistante.update({ PersonnageId: participationModifiee.value, team: teamNumber }); // Update Participation
             break;
           }
         }
         if (trouvee == false)
-          await participationExistante.destroy();
+          await participationExistante.destroy(); // Destroy Participation
       }
 
-      // Add if not found
       for (const participationModifiee of requeteTeam) {
         let trouvee = false;
         for (const participationExistante of combatTrouve.dataValues.Participations) {
@@ -110,7 +104,7 @@ const modifierCombat = async (requete, reponse, next) => {
           }
         }
         if (trouvee == false) {
-          await combatTrouve.createParticipation({ PersonnageId: participationModifiee.value, team: teamNumber } );
+          await combatTrouve.createParticipation({ PersonnageId: participationModifiee.value, team: teamNumber } ); // Create Participation
         }
       }
     }
@@ -121,9 +115,10 @@ const modifierCombat = async (requete, reponse, next) => {
     if (requete.body.teamB)
       editerSupprimerAjouterParticipation(requete.body.teamB, 2);
  
-    io.emit('editedBattle', combatTrouve.toJSON()); // signal websocket événement editedBattle avec objet edité
-    reponse.status(200).json( { message: "Le combat a bien été modifié !", combatTrouve } );
-  } catch (erreur) {
+    io.emit('editedBattle'); // => IO Event
+    reponse.status(200).json( { message: "Le combat a bien été modifié !", combatTrouve } ); // => REPONSE combat
+  }
+  catch (erreur) {
     console.log(erreur);
     reponse.status(500).json( { error: "Erreur interne lors de la modification du combat !" } );
   }

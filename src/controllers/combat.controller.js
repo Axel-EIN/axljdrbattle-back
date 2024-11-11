@@ -1,7 +1,9 @@
-import { Combat } from "../models/index.js"; // Importation de l'Objet Combat initialisé et connecté à la base de données Sequelize
-import { Participation } from "../models/index.js"; // Importation de l'Objet Participation initialisé et connecté à la base de données Sequelize
-import { Personnage } from "../models/index.js"; // Importation de l'Objet Participation initialisé et connecté à la base de données Sequelize
-import { io } from "../services/socket.js"; // Importation de la lib IO depuis le service socket
+import { Combat } from "../models/index.js"; // Modèle Combat initialisé
+import { Participation } from "../models/index.js"; // Modèle Participation initialisé
+import { Personnage } from "../models/index.js"; // Modèle Personnage initialisé
+import { io } from "../services/socket.js"; // Service SocketIO
+import { tableauValeurUnique } from "../utils/utils.js";
+import { reformatterValeursEquipe } from "../utils/utils.js";
 
 // ====================
 // === RETRIEVE ALL ===
@@ -10,11 +12,11 @@ import { io } from "../services/socket.js"; // Importation de la lib IO depuis l
 const recupererCombats = async (requete, reponse) => {
   try {
     const toutCombats = await Combat.findAll({ include: { all: true } });
-    reponse.status(200).json(toutCombats); // => REPONSE [combats]
+    reponse.status(200).json(toutCombats); // => REPONSE [Combats]
   }
   catch (erreur) {
     console.log(erreur);
-    reponse.status(500).json( { error: "Erreur interne lors de la récupération des combats !" } );
+    reponse.status(500).json({ error: "Erreur interne lors de la récupération des combats !" });
   }
 };
 
@@ -25,14 +27,17 @@ const recupererCombats = async (requete, reponse) => {
 
 const recupererUnCombat = async (requete, reponse) => {
     try {
-        const combatTrouve = await Combat.findByPk( requete.params.id, { include: { all: true } } );
+      const combatTrouve = await Combat.findByPk(requete.params.id, { include: [
+        {model: Participation, include: [Personnage]},
+        {model: Participation, as: 'TourCourant', include: [Personnage]}
+      ]});
         if (!combatTrouve)
-            return reponse.status(404).json( { error: "Ce combat n'existe pas !" } ); // => 404
-        reponse.status(200).json(combatTrouve); // => REPONSE combat
+            return reponse.status(404).json({ error: "Ce combat n'existe pas !" }); // => 404
+        reponse.status(200).json(combatTrouve); // => REPONSE Combat
     }
     catch (erreur) {
         console.log(erreur);
-        reponse.status(500).json( { error: "Erreur interne lors de la récupération d'un combat !" } );
+        reponse.status(500).json({ error: "Erreur interne lors de la récupération d'un combat !" });
     }
 }
 
@@ -43,27 +48,19 @@ const recupererUnCombat = async (requete, reponse) => {
 
 const ajouterCombat = async (requete, reponse) => {
   try {
-    const nouveauCombat = await Combat.create(requete.body); // Create Combat
+    const nouveauCombat = await Combat.create(requete.body); // Crée Combat
 
-    const ajouterParticipation = (requeteTeam, teamNumber) => {
-      requeteTeam.forEach( async (uneParticipation) => {
-          if (uneParticipation.value != '' && uneParticipation.value > 0)
-            await nouveauCombat.createParticipation( { PersonnageId: uneParticipation.value, team: teamNumber } ); // Create Participation
-      });
-    }
+    if (requete.body.teamA) requete.body.teamA = reformatterValeursEquipe(requete.body.teamA, 1); // Formatage requête teamA
+    if (requete.body.teamB) requete.body.teamB = reformatterValeursEquipe(requete.body.teamB, 2); // Formatage requête teamB
+    const tableauUnique = tableauValeurUnique( [...(requete.body.teamA || []), ...(requete.body.teamB || [])] ); // Fusion Unique Array
 
-    if (requete.body.teamA)
-      ajouterParticipation(requete.body.teamA, 1);
-
-    if (requete.body.teamB)
-      ajouterParticipation(requete.body.teamB, 2);
-
+    tableauUnique.forEach(async (item) => await nouveauCombat.createParticipation({ PersonnageId: item.valueID, team: item.team })); // Crée Participation
     io.emit('newBattle'); // => IO Event
-    reponse.status(201).json( { message: "Le combat et les participations ont bien été ajouté !", nouveauCombat } ); // => REPONSE combat
+    reponse.status(201).json({ message: "Le combat et les participations ont bien été ajouté !", nouveauCombat} ); // => REPONSE Combat
   }
   catch (erreur) {
     console.log(erreur);
-    reponse.status(500).json( { error: "Erreur interne lors de la création du combat !" } );
+    reponse.status(500).json({ error: "Erreur interne lors de la création du combat !" });
   }
 };
 
@@ -74,53 +71,45 @@ const ajouterCombat = async (requete, reponse) => {
 
 const modifierCombat = async (requete, reponse) => {
   try {
-    const combatTrouve = await Combat.findByPk(requete.params.id, { include: [Participation]});
+    const combatTrouve = await Combat.findByPk(requete.params.id, { include: [Participation] });
+    if (!combatTrouve) return reponse.status(404).json({ error: "Ce combat n'existe pas !" }); // => 404
+    await combatTrouve.update(requete.body); // Edite Combat
 
-    if (!combatTrouve)
-        return reponse.status(404).json( { error: "Ce combat n'existe pas !" } ); // => 404
+    if (requete.body.teamA) requete.body.teamA = reformatterValeursEquipe(requete.body.teamA, 1); // Formatage requête teamA
+    if (requete.body.teamB) requete.body.teamB = reformatterValeursEquipe(requete.body.teamB, 2); // Formatage requête teamB
+    const tableauUnique = tableauValeurUnique( [...(requete.body.teamA || []), ...(requete.body.teamB || [])] ); // Fusion Unique Array
 
-    await combatTrouve.update(requete.body); // Update Combat
-
-    const editerSupprimerAjouterParticipation = async (requeteTeam, teamNumber) => {
-      for (const participationExistante of combatTrouve.dataValues.Participations) {
+    if (tableauUnique) {
+      for (let i = 0; i < combatTrouve.Participations.length; i++) {
         let trouvee = false;
-        for (const participationModifiee of requeteTeam) {
-          if (participationExistante.PersonnageId == participationModifiee.value) {
+        for (let j = 0; j < tableauUnique.length; j++) {
+          if (combatTrouve.Participations[i].dataValues.PersonnageId === tableauUnique[j].valueID) {
             trouvee = true;
-            await participationExistante.update({ PersonnageId: participationModifiee.value, team: teamNumber }); // Update Participation
+            await combatTrouve.Participations[i].update({ team: tableauUnique[j].team }); // Edite Participation
             break;
           }
         }
-        if (trouvee == false)
-          await participationExistante.destroy(); // Destroy Participation
+        if (trouvee === false) await combatTrouve.Participations[i].destroy(); // Supprime Participation
       }
 
-      for (const participationModifiee of requeteTeam) {
+      for (let j = 0; j < tableauUnique.length; j++) {
         let trouvee = false;
-        for (const participationExistante of combatTrouve.dataValues.Participations) {
-          if (participationModifiee.value == participationExistante) {
+        for (let i = 0; i < combatTrouve.Participations.length; i++) {
+          if (tableauUnique[j].valueID === combatTrouve.Participations[i].dataValues.PersonnageId) {
             trouvee = true;
             break;
           }
         }
-        if (trouvee == false) {
-          await combatTrouve.createParticipation({ PersonnageId: participationModifiee.value, team: teamNumber } ); // Create Participation
+        if (trouvee === false) await combatTrouve.createParticipation({ PersonnageId: tableauUnique[j].valueID, team: tableauUnique[j].team }); // Crée Participation
         }
       }
-    }
-
-    if (requete.body.teamA)
-      editerSupprimerAjouterParticipation(requete.body.teamA, 1);
-
-    if (requete.body.teamB)
-      editerSupprimerAjouterParticipation(requete.body.teamB, 2);
  
     io.emit('editedBattle'); // => IO Event
-    reponse.status(200).json( { message: "Le combat a bien été modifié !", combatTrouve } ); // => REPONSE combat
+    reponse.status(200).json({ message: "Le combat a bien été modifié !", combatTrouve }); // => REPONSE Combat
   }
   catch (erreur) {
     console.log(erreur);
-    reponse.status(500).json( { error: "Erreur interne lors de la modification du combat !" } );
+    reponse.status(500).json({ error: "Erreur interne lors de la modification du combat !" });
   }
 };
 
@@ -131,18 +120,15 @@ const modifierCombat = async (requete, reponse) => {
 
 const supprimerCombat = async (requete, reponse) => {
   try {
-    const combatTrouve = await Combat.findByPk(requete.params.id, { include: [Participation]});
-
-    if (!combatTrouve)
-      return reponse.status(404).json( { error: "Ce combat n'existe pas !" } ); // => 404
-
-    await combatTrouve.destroy(); // Destroy Combat and its Participations
+    const combatTrouve = await Combat.findByPk(requete.params.id, { include: [Participation] });
+    if (!combatTrouve) return reponse.status(404).json({ error: "Ce combat n'existe pas !" }); // => 404
+    await combatTrouve.destroy(); // Supprime Combat et ses Participations
     io.emit('deletedBattle'); // => IO Event
-    reponse.status(200).json( { message: "Le combat a bien été supprimé !", combatTrouve } ); // => REPONSE combat
+    reponse.status(200).json({ message: "Le combat a bien été supprimé !", combatTrouve }); // => REPONSE Combat
   }
   catch (erreur) {
     console.log(erreur);
-    reponse.status(500).json( { error: "Erreur interne lors de la suppression du combat !" } );
+    reponse.status(500).json({ error: "Erreur interne lors de la suppression du combat !" });
   }
 };
 
@@ -154,36 +140,27 @@ const supprimerCombat = async (requete, reponse) => {
 const demarrerCombat = async (requete, reponse) => {
   try {
     const combatTrouve = await Combat.findByPk(requete.params.id, { include: [
-      { model: Participation, include: [ { model: Personnage, as: 'Personnage' } ] },
-      { model: Personnage, as: 'tourcourant' },
-      { model: Personnage, as: 'Personnages'},
-    ]});
-
-    if (!combatTrouve)
-      return reponse.status(404).json( { error: "Ce combat n'existe pas !" } ); // => 404
-
-    await combatTrouve.update({ statut: 'started' }); // Update Combat
+      { model: Participation, include: [Personnage] },
+      { model: Participation, as: 'TourCourant'}]});
+    if (!combatTrouve) return reponse.status(404).json({ error: "Ce combat n'existe pas !" }); // => 404
+    await combatTrouve.update({ statut: 'started' }); // Edite statut
 
     if (combatTrouve.dataValues.roundCourant === 0) {
-      for (let i = 0; i < combatTrouve.Participations.length; i++)
-        await combatTrouve.Participations[i].update( { initiative: Math.floor(100 * Math.random()) } ); // Update Participation.Initiative
-
-      const sortedParticipations = combatTrouve.Participations.sort( (a,b) =>  b.dataValues.initiative - a.dataValues.initiative ); // Sort
-
-      await combatTrouve.update({ roundCourant: 1}); // Update Combat.roundCourant = 1
-      await combatTrouve.setTourcourant(sortedParticipations[0].Personnage); // Update Combat.toucourant = Personnage
-
-      const combatModifie = {...combatTrouve.toJSON(), tourcourant: sortedParticipations[0].Personnage.dataValues};
-      io.emit('initiativeRolled', combatModifie); // => IO Event
-      reponse.status(200).json( { message: "Le combat a bien été démarré !", combatTrouve } ); // => REPONSE combat
+      combatTrouve.Participations.forEach(
+        async (participation) => await participation.update({ initiative: Math.floor(100 * Math.random()) })); // Edite Initiative
+      const ordreTours = combatTrouve.Participations.sort((a,b) => b.dataValues.initiative - a.dataValues.initiative); // Tri Initiative
+      await combatTrouve.update({ roundCourant: 1 }); // Edite Round Courant
+      await combatTrouve.setTourCourant(ordreTours[0]); // Edite Tour Courant
+      io.emit('initiativeRolled', ordreTours[0].Personnage.prenom); // => IO Event
+      reponse.status(200).json({ message: "Le combat a bien été démarré !" });
     } else {
       io.emit('resumedBattle'); // => IO Event
-      reponse.status(200).json( { message: "Le combat est de redémarré !", combatTrouve } ); // => REPONSE combat
+      reponse.status(200).json({ message: "Le combat a repris !" });
     }
   }
   catch (erreur) {
     console.log(erreur);
-    reponse.status(500).json( { error: "Erreur interne lors du démarrage du combat !" } );
+    reponse.status(500).json({ error: "Erreur interne lors du démarrage du combat !" });
   }
 }
 
@@ -194,24 +171,20 @@ const demarrerCombat = async (requete, reponse) => {
 
 const recommencerCombat = async (requete, reponse) => {
   try {
-    const combatTrouve = await Combat.findByPk(requete.params.id, { include: { all: true } });
+    const combatTrouve = await Combat.findByPk(requete.params.id, { include: [Participation] });
+    if (!combatTrouve) return reponse.status(404).json({ error: "Ce combat n'existe pas !" }); // => 404
 
-    if (!combatTrouve)
-      return reponse.status(404).json( { error: "Ce combat n'existe pas !" } ); // => 404
-
-    await combatTrouve.update( { statut: 'waiting', roundCourant: 0 } ); // Updated Combat.statut = Paused & Combat.roundCourant = 0
-    await combatTrouve.setTourcourant(null); // Set Combat.tourcourant = null
-
-    for (let i = 0; i < combatTrouve.Participations.length; i++) {
-      await combatTrouve.Participations[i].update( { initiative: 0 } ); // Update Participation.Initiative = 0
-    }
+    await combatTrouve.update({ statut: 'waiting', roundCourant: 0 }); // Edite Statut et Round Courant
+    await combatTrouve.setTourCourant(null); // Réinitialise Tour Courant
+    combatTrouve.Participations.forEach(
+      async (participation) => await participation.update({ initiative: 0, posture: 'attaque', isPlayed: false })); // Réunitialise Iniative Posture isPlayed
 
     io.emit('restartedBattle'); // => IO Event
-    reponse.status(200).json( { message: "Le combat a bien été recommencé !", combatTrouve } ); // => REPONSE combat
+    reponse.status(200).json({ message: "Le combat a bien été réinitialisé !" });
   }
   catch (erreur) {
     console.log(erreur);
-    reponse.status(500).json( { error: "Erreur interne lors du redémarrage du combat !" } );
+    reponse.status(500).json({ error: "Erreur interne lors de la réinitialisation du combat !" });
   }
 }
 
@@ -223,12 +196,16 @@ const recommencerCombat = async (requete, reponse) => {
 const arreterCombat = async (requete, reponse) => {
   try {
     const combatTrouve = await Combat.findByPk(requete.params.id);
-    if (!combatTrouve)
-      return reponse.status(404).json( { error: "Ce combat n'existe pas !" } ); // => 404
-
-    combatTrouve.update({statut: 'paused'}); // Update Combat.statut
-    io.emit('pausedBattle', combatTrouve); // => IO Event
-    reponse.status(200).json( { message: "Le combat a bien été arrêté !", combatTrouve } ); // REPONSE combat
+    if (!combatTrouve) return reponse.status(404).json({ error: "Ce combat n'existe pas !" }); // => 404
+    combatTrouve.update({ statut: 'paused' }); // Edite Statut
+    io.emit('pausedBattle'); // => IO Event
+    reponse.status(200).json({ message: "Le combat a bien été mis en pause !" });
+  }
+  catch (erreur) {
+    console.log(erreur);
+    reponse.status(500).json({ error: "Erreur interne lors de l'arrêt du combat !" });
+  }
+}
   }
   catch (erreur) {
     console.log(erreur);

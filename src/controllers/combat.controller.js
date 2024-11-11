@@ -129,20 +129,18 @@ const modifierCombat = async (requete, reponse) => {
 // === DELETE ONE ===
 // ==================
 
-const supprimerCombat = async (requete, reponse, next) => {
+const supprimerCombat = async (requete, reponse) => {
   try {
-    const combatTrouve = await Combat.findByPk(requete.params.id, { include: [Participation]}); // Récupère un combat par son ID
+    const combatTrouve = await Combat.findByPk(requete.params.id, { include: [Participation]});
+
     if (!combatTrouve)
-      return reponse.status(404).json( { error: "Ce combat n'existe pas !" } );
+      return reponse.status(404).json( { error: "Ce combat n'existe pas !" } ); // => 404
 
-    // Delete Participations
-    combatTrouve.dataValues.Participations.forEach( async (uneParticipation) => await uneParticipation.destroy() );
-
-    const combatSupprime = {...combatTrouve.dataValues};
-    await combatTrouve.destroy();
-    io.emit('deletedBattle', combatSupprime); // signal websocket deletedBattle avec l'objet effacé
-    reponse.status(200).json( { message: "Le combat a bien été supprimé !", combatSupprime } );
-  } catch (erreur) {
+    await combatTrouve.destroy(); // Destroy Combat and its Participations
+    io.emit('deletedBattle'); // => IO Event
+    reponse.status(200).json( { message: "Le combat a bien été supprimé !", combatTrouve } ); // => REPONSE combat
+  }
+  catch (erreur) {
     console.log(erreur);
     reponse.status(500).json( { error: "Erreur interne lors de la suppression du combat !" } );
   }

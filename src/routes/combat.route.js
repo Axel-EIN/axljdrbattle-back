@@ -5,7 +5,8 @@ import {
   recupererUnCombat,
   ajouterCombat,
   modifierCombat,
-  supprimerCombat
+  supprimerCombat,
+  demarrerCombat,
 } from "../controllers/combat.controller.js";
 
 const router = express.Router();
@@ -15,5 +16,6 @@ router.get("/un/:id", recupererUnCombat);
 router.post("/ajouter", ajouterCombat);
 router.put("/modifier/:id", modifierCombat);
 router.delete("/supprimer/:id", supprimerCombat);
+router.put("/demarrer/:id", demarrerCombat);
 
 export default router;

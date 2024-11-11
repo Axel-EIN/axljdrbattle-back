@@ -1,5 +1,5 @@
 import express from "express";
-
+import verifyToken from '../middlewares/auth.js';
 import {
   recupererCombats,
   recupererUnCombat,
@@ -9,6 +9,7 @@ import {
   demarrerCombat,
   recommencerCombat,
   arreterCombat,
+  jouerTour,
 } from "../controllers/combat.controller.js";
 
 const router = express.Router();
@@ -21,5 +22,6 @@ router.delete("/supprimer/:id", supprimerCombat);
 router.put("/demarrer/:id", demarrerCombat);
 router.put("/recommencer/:id", recommencerCombat);
 router.put("/arreter/:id", arreterCombat);
+router.put("/jouer/:id", verifyToken, jouerTour);
 
 export default router;

@@ -188,6 +188,33 @@ const demarrerCombat = async (requete, reponse) => {
 }
 
 
+// ====================
+// === REINITIALIZE ===
+// ====================
+
+const recommencerCombat = async (requete, reponse) => {
+  try {
+    const combatTrouve = await Combat.findByPk(requete.params.id, { include: { all: true } });
+
+    if (!combatTrouve)
+      return reponse.status(404).json( { error: "Ce combat n'existe pas !" } ); // => 404
+
+    await combatTrouve.update( { statut: 'waiting', roundCourant: 0 } ); // Updated Combat.statut = Paused & Combat.roundCourant = 0
+    await combatTrouve.setTourcourant(null); // Set Combat.tourcourant = null
+
+    for (let i = 0; i < combatTrouve.Participations.length; i++) {
+      await combatTrouve.Participations[i].update( { initiative: 0 } ); // Update Participation.Initiative = 0
+    }
+
+    io.emit('restartedBattle'); // => IO Event
+    reponse.status(200).json( { message: "Le combat a bien été recommencé !", combatTrouve } ); // => REPONSE combat
+  }
+  catch (erreur) {
+    console.log(erreur);
+    reponse.status(500).json( { error: "Erreur interne lors du redémarrage du combat !" } );
+  }
+}
+
 export {
     recupererCombats,
     recupererUnCombat,
@@ -195,4 +222,5 @@ export {
     modifierCombat,
     supprimerCombat,
     demarrerCombat,
+    recommencerCombat,
 };

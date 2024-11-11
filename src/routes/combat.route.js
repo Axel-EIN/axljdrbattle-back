@@ -8,6 +8,7 @@ import {
   supprimerCombat,
   demarrerCombat,
   recommencerCombat,
+  arreterCombat,
 } from "../controllers/combat.controller.js";
 
 const router = express.Router();
@@ -19,5 +20,6 @@ router.put("/modifier/:id", modifierCombat);
 router.delete("/supprimer/:id", supprimerCombat);
 router.put("/demarrer/:id", demarrerCombat);
 router.put("/recommencer/:id", recommencerCombat);
+router.put("/arreter/:id", arreterCombat);
 
 export default router;

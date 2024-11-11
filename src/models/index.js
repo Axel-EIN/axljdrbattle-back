@@ -46,6 +46,8 @@ Combat.belongsToMany(Personnage, { through: Participation });
 
 Combat.hasMany(Participation);
 Participation.belongsTo(Combat);
+Personnage.hasMany(Participation);
+Participation.belongsTo(Personnage);
 
 // Syncrhonisation de la BDD
 await connexionBDD.sync(

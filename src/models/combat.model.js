@@ -8,13 +8,14 @@ export default (connection, DataTypes) => {
             },
             statut: {
                 type:   DataTypes.ENUM,
-                values: ['waiting', 'started', 'finished']
+                values: ['waiting', 'started', 'finished', 'paused'],
+                defaultValue: 'waiting',
             },
             roundCourant: {
                 type: DataTypes.TINYINT,
                 allowNull: false,
-                defaultValue: 1,
-            }
+                defaultValue: 0,
+            },
         },
         {
             timestamp: true,

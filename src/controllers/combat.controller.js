@@ -7,11 +7,12 @@ import { io } from "../services/socket.js"; // Importation de la lib IO depuis l
 // === RETRIEVE ALL ===
 // ====================
 
-const recupererCombats = async (requete, reponse, next) => {
+const recupererCombats = async (requete, reponse) => {
   try {
-    const toutCombats = await Combat.findAll({ include: [Personnage] });
-    reponse.status(200).json(toutCombats);
-  } catch (erreur) {
+    const toutCombats = await Combat.findAll({ include: { all: true } });
+    reponse.status(200).json(toutCombats); // => REPONSE [combats]
+  }
+  catch (erreur) {
     console.log(erreur);
     reponse.status(500).json( { error: "Erreur interne lors de la récupération des combats !" } );
   }

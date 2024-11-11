@@ -14,6 +14,15 @@ export default (connection, DataTypes) => {
         type: DataTypes.TINYINT,
         defaultValue: 0,
       },
+      posture: {
+        type:   DataTypes.ENUM,
+        values: ['esquive', 'defense', 'centre', 'attaque', 'assaut'],
+        defaultValue: 'attaque',
+      },
+      isPlayed: {
+        type:   DataTypes.BOOLEAN,
+        defaultValue: false,
+      },
     },
     {
       timestamp: true,

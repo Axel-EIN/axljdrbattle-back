@@ -23,15 +23,14 @@ const recupererCombats = async (requete, reponse) => {
 // === RETRIEVE ONE ===
 // ====================
 
-const recupererUnCombat = async (requete, reponse, next) => {
+const recupererUnCombat = async (requete, reponse) => {
     try {
-        const combatTrouve = await Combat.findByPk( requete.params.id, { include: [Personnage, Participation]} );
-
+        const combatTrouve = await Combat.findByPk( requete.params.id, { include: { all: true } } );
         if (!combatTrouve)
-            return reponse.status(404).json( { error: "Ce combat n'existe pas !" } );
-
-        reponse.status(200).json(combatTrouve);
-    } catch (erreur) {
+            return reponse.status(404).json( { error: "Ce combat n'existe pas !" } ); // => 404
+        reponse.status(200).json(combatTrouve); // => REPONSE combat
+    }
+    catch (erreur) {
         console.log(erreur);
         reponse.status(500).json( { error: "Erreur interne lors de la récupération d'un combat !" } );
     }

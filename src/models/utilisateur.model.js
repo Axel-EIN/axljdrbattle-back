@@ -29,6 +29,7 @@ export default (connection, DataTypes) => {
             }
         },
         {
+            timestamps: false,
             indexes: [
                 { // Définition manuelle index => évite duplication après Sequelize.sync({alter: true})
                     name: 'identifiant_unique_index',

@@ -226,7 +226,7 @@ const jouerTour = async (requete, reponse) => {
 
     // CHANGEMENT DE POSTURE
     await participationCourante.update({ posture: requete.body.posture }); // Edite Participation Courante Posture
-    io.emit('changementPosture', participationCourante.Personnage.dataValues.prenom, requete.body.posture); // => Signal IO Changement de posture
+    io.emit('stanceChanged', participationCourante.Personnage.dataValues.prenom, requete.body.posture); // => Signal IO Changement de posture
 
     await participationCourante.update({ is_played: true });
     const combatParticipations = await combatTrouve.getParticipations({ include: [Personnage] });
@@ -236,7 +236,7 @@ const jouerTour = async (requete, reponse) => {
       const cibleParticipation = combatParticipations.find((item) => item.dataValues.personnage_id == requete.body.cibleAttaque1);
       const degats = Math.floor(33 * Math.random());
       cibleParticipation.Personnage.update({ HP: cibleParticipation.Personnage.dataValues.HP - degats });
-      io.emit('degatsAttaque', participationCourante.Personnage.dataValues.prenom, degats, cibleParticipation.Personnage.dataValues.prenom);
+      io.emit('damageRolled', participationCourante.Personnage.dataValues.prenom, degats, cibleParticipation.Personnage.dataValues.prenom);
     }
     
     // ATTAQUE 2
@@ -244,7 +244,7 @@ const jouerTour = async (requete, reponse) => {
       const cibleParticipation2 = combatParticipations.find((item) => item.dataValues.personnage_id == requete.body.cibleAttaque2);
       const degats2 = Math.floor(33 * Math.random());
       cibleParticipation2.Personnage.update({ HP: cibleParticipation2.Personnage.dataValues.HP - degats2 });
-      io.emit('degatsAttaque',  participationCourante.Personnage.dataValues.prenom, degats2, cibleParticipation2.Personnage.dataValues.prenom);
+      io.emit('damageRolled',  participationCourante.Personnage.dataValues.prenom, degats2, cibleParticipation2.Personnage.dataValues.prenom);
     }
 
     // CALCUL TOUR RESTANTS

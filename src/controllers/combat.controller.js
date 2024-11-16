@@ -253,6 +253,7 @@ const jouerTour = async (requete, reponse) => {
 
     // FIN DU ROUND, NOUVEAU ROUND
     if (toursRestants.length === 0) { // Tout le monde a joué
+      io.emit('newRound', combatTrouve.round_courant + 1);
       await combatTrouve.update({ round_courant: combatTrouve.dataValues.round_courant + 1 }); // round_courant +1
       toursRestants = combatParticipations.sort ((a, b) => b.dataValues.initiative - a.dataValues.initiative);
     }

@@ -38,8 +38,8 @@ modeleParticipation(connexionBDD, Sequelize);
 const { Utilisateur, Personnage, Combat, Participation } = connexionBDD.models; // Nous sommes obligé d'utilisé la propriété .models
 
 // Règles des cardinalités
-Utilisateur.hasMany(Personnage);
-Personnage.belongsTo(Utilisateur);
+Utilisateur.hasMany(Personnage, {foreignKey: 'utilisateur_id'});
+Personnage.belongsTo(Utilisateur,  {foreignKey: 'utilisateur_id'});
 
 Personnage.belongsToMany(Combat, { through: Participation });
 Combat.belongsToMany(Personnage, { through: Participation });

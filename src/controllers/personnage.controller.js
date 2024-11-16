@@ -30,7 +30,7 @@ const ajouterPersonnage = async (requete, reponse, next) => {
     if (requete.files && requete.files.length > 0) // Si des fichiers images sont présents par multer
       requete.files.forEach( (file) => requete.body[file.fieldname] = "images/" + file.fieldname + "s/" + file.filename ); // Pour chaque élément prépare la requete
 
-    const utilisateurTrouve = await Utilisateur.findByPk( requete.body.utilisateurID );
+    const utilisateurTrouve = await Utilisateur.findByPk( requete.body.utilisateur_id );
 
     if (utilisateurTrouve)
       await utilisateurTrouve.createPersonnage(requete.body);

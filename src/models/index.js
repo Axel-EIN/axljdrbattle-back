@@ -41,13 +41,11 @@ const { Utilisateur, Personnage, Combat, Participation } = connexionBDD.models; 
 Utilisateur.hasMany(Personnage, {foreignKey: 'utilisateur_id'});
 Personnage.belongsTo(Utilisateur,  {foreignKey: 'utilisateur_id'});
 
-Personnage.belongsToMany(Combat, { through: Participation });
-Combat.belongsToMany(Personnage, { through: Participation });
+Personnage.hasMany(Participation, {foreignKey: 'personnage_id' });
+Participation.belongsTo(Personnage, {foreignKey: 'personnage_id' });
 
-Combat.hasMany(Participation);
-Participation.belongsTo(Combat);
-Personnage.hasMany(Participation);
-Participation.belongsTo(Personnage);
+Combat.hasMany(Participation, {foreignKey: 'combat_id' });
+Participation.belongsTo(Combat, {foreignKey: 'combat_id' });
 
 Combat.belongsTo(Participation, { as: "TourCourant"});
 

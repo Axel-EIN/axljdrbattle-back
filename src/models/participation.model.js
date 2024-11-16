@@ -19,7 +19,7 @@ export default (connection, DataTypes) => {
         values: ['esquive', 'defense', 'centre', 'attaque', 'assaut'],
         defaultValue: 'attaque',
       },
-      isPlayed: {
+      is_played: {
         type:   DataTypes.BOOLEAN,
         defaultValue: false,
       },

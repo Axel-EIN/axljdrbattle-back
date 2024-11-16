@@ -10,7 +10,7 @@ import express from 'express';
 import cookieParser from 'cookie-parser'; // Module pour pouvoir lire les cookies
 
 // Importation des routes
-import routeurUtilisateur from './src/routes/utilisateur.route.js';
+import userRouter from './src/routes/user.route.js';
 import routeurPersonnage from './src/routes/personnage.route.js';
 import routeurCombat from './src/routes/combat.route.js';
 
@@ -34,7 +34,7 @@ app.use((requete, reponse, next) => { // Methode pour faire fonctionner les cors
 app.use(express.static('public'));
 
 // Middleware pour connecter les routes
-app.use("/api/utilisateur", routeurUtilisateur);
+app.use("/api/user", userRouter);
 app.use("/api/personnage", routeurPersonnage);
 app.use("/api/combat", routeurCombat);
 

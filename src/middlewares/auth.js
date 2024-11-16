@@ -2,6 +2,7 @@ import jwt from 'jsonwebtoken'; // Importation de la librairie pour le JsonWebTo
 import { ENV } from '../../config.js'; // Importation des variables d'environements pour le secret token
 import { createError } from '../utils/error.js'; // Importation de la fonction personnalisable de création d'objet d'erreur
 import { Utilisateur } from "../models/index.js";
+
 const verifyToken = (requete, reponse, next) => {
     const token = requete.cookies.access_token;
 

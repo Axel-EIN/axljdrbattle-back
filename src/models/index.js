@@ -51,7 +51,7 @@ Combat.belongsTo(Participation, {as: 'TourCourant', foreignKey: 'tour_courant' }
 
 // Syncrhonisation de la BDD
 await connexionBDD.sync(
-    // {alter:true}
+    {alter: true}
 );
 console.log("Synchronisation de la base de données OK !");
 

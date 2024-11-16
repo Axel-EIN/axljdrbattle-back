@@ -47,7 +47,7 @@ Participation.belongsTo(Personnage, {foreignKey: 'personnage_id' });
 Combat.hasMany(Participation, {foreignKey: 'combat_id' });
 Participation.belongsTo(Combat, {foreignKey: 'combat_id' });
 
-Combat.belongsTo(Participation, { as: "TourCourant"});
+Combat.belongsTo(Participation, {as: 'TourCourant', foreignKey: 'tour_courant' });
 
 // Syncrhonisation de la BDD
 await connexionBDD.sync(

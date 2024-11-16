@@ -231,6 +231,14 @@ const jouerTour = async (requete, reponse) => {
     await participationCourante.update({ is_played: true });
     const combatParticipations = await combatTrouve.getParticipations({ include: [Personnage] });
 
+    // ATTAQUE 1
+    if (requete.body.cibleAttaque1) {
+      const cibleParticipation = combatParticipations.find((item) => item.dataValues.personnage_id == requete.body.cibleAttaque1);
+      const degats = Math.floor(33 * Math.random());
+      cibleParticipation.Personnage.update({ HP: cibleParticipation.Personnage.dataValues.HP - degats });
+      io.emit('degatsAttaque', participationCourante.Personnage.dataValues.prenom, degats, cibleParticipation.Personnage.dataValues.prenom);
+    }
+    
     let toursRestants = combatParticipations.filter(
       (participation) => participation.dataValues.is_played === false).sort((a,b) =>  b.dataValues.initiative - a.dataValues.initiative);
 

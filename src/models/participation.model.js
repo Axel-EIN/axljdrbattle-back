@@ -23,6 +23,26 @@ export default (connection, DataTypes) => {
         type:   DataTypes.BOOLEAN,
         defaultValue: false,
       },
+      personnage_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'personnages',
+          key: 'id',
+        },
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE',
+      },
+      combat_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'combats',
+          key: 'id',
+        },
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE',
+      }
     },
     {
       timestamps: false,

@@ -11,7 +11,7 @@ import cookieParser from 'cookie-parser'; // Module pour pouvoir lire les cookie
 
 // Importation des routes
 import userRouter from './src/routes/user.route.js';
-import routeurPersonnage from './src/routes/personnage.route.js';
+import characterRouter from './src/routes/character.route.js';
 import routeurCombat from './src/routes/combat.route.js';
 
 import './src/models/index.js'; // Importation et connexion de la base de données
@@ -35,7 +35,7 @@ app.use(express.static('public'));
 
 // Middleware pour connecter les routes
 app.use("/api/user", userRouter);
-app.use("/api/personnage", routeurPersonnage);
+app.use("/api/character", characterRouter);
 app.use("/api/combat", routeurCombat);
 
 export default app;

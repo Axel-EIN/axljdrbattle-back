@@ -51,11 +51,8 @@ const modifierPersonnage = async (requete, reponse, next) => {
     if (!personnageTrouve)
         return reponse.status(404).json( { error: "Ce personnage n'existe pas !" } );
 
-    console.log('requete.files : ', requete.files);
     if (requete.files && requete.files.length > 0) // Si des fichiers images sont présents par multer
         requete.files.forEach( (file) => requete.body[file.fieldname] = "images/" + file.fieldname + "s/" + file.filename ); // Pour chaque élément prépare la requete
-
-    console.log('requetebody après les images : ', requete.body);
 
     let ancienPortrait;
     if (requete.body.portrait && personnageTrouve.portrait)

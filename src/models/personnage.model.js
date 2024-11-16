@@ -26,6 +26,7 @@ export default (sequelize, DataTypes) => {
             }
         },
         {
+            timestamps: false,
             indexes: [
                 { 
                     name: 'prenom_unique_index',

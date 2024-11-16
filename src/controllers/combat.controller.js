@@ -217,9 +217,9 @@ const jouerTour = async (requete, reponse) => {
     const combatTrouve = await Combat.findByPk(requete.params.id, { include: [{ model: Participation, as: 'TourCourant', include: [Personnage] }]});
 
     if (!combatTrouve) return reponse.status(404).json({ error: "Ce combat n'existe pas !" }); // => 404
+    if (!combatTrouve.TourCourant) return reponse.status(500).json({ error: "Il n'y a pas de tour de jeu !" }); // => 500
 
-    if (requete.user.toJSON().id != combatTrouve.TourCourant.Personnage.dataValues.UtilisateurId)
-      return reponse.status(403).json({ error: "Désolé ! Mais ce n'est pas encore à votre tour de jouer !" }); // => 403
+    // VERIF TOUR COURANT OU MJ
 
     await combatTrouve.TourCourant.update({ posture: requete.body.posture, isPlayed: true }); // Edite Participation Courante
     const combatParticipations = await combatTrouve.getParticipations();

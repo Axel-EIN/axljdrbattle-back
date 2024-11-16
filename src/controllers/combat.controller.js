@@ -247,14 +247,17 @@ const jouerTour = async (requete, reponse) => {
       io.emit('degatsAttaque',  participationCourante.Personnage.dataValues.prenom, degats2, cibleParticipation2.Personnage.dataValues.prenom);
     }
 
+    // CALCUL TOUR RESTANTS
     let toursRestants = combatParticipations.filter(
       (participation) => participation.dataValues.is_played === false).sort((a,b) =>  b.dataValues.initiative - a.dataValues.initiative);
 
+    // FIN DU ROUND, NOUVEAU ROUND
     if (toursRestants.length === 0) { // Tout le monde a joué
       await combatTrouve.update({ round_courant: combatTrouve.dataValues.round_courant + 1 }); // round_courant +1
       toursRestants = combatParticipations.sort ((a, b) => b.dataValues.initiative - a.dataValues.initiative);
     }
     
+    // NOUVEAU TOUR DE JEU
     await combatTrouve.setTourCourant(toursRestants[0]); // Edite Tour Courant
     io.emit('nextTurn'); // => IO Event
     reponse.status(200).json({ message: "Le tour a bien été joué !" });

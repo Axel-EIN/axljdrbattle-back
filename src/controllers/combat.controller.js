@@ -261,7 +261,7 @@ const jouerTour = async (requete, reponse) => {
     
     // NOUVEAU TOUR DE JEU
     await combatTrouve.setTourCourant(toursRestants[0]); // Edite Tour Courant
-    io.emit('nextTurn'); // => IO Event
+    io.emit('nextTurn', toursRestants[0].Personnage.prenom); // => IO Event
     reponse.status(200).json({ message: "Le tour a bien été joué !" });
   }
   catch (erreur) {

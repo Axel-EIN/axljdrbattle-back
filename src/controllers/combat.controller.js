@@ -228,6 +228,9 @@ const jouerTour = async (requete, reponse) => {
     await participationCourante.update({ posture: requete.body.posture }); // Edite Participation Courante Posture
     io.emit('changementPosture', participationCourante.Personnage.dataValues.prenom, requete.body.posture); // => Signal IO Changement de posture
 
+    await participationCourante.update({ is_played: true });
+    const combatParticipations = await combatTrouve.getParticipations({ include: [Personnage] });
+
     let toursRestants = combatParticipations.filter(
       (participation) => participation.dataValues.is_played === false).sort((a,b) =>  b.dataValues.initiative - a.dataValues.initiative);
 

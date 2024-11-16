@@ -177,7 +177,7 @@ const recommencerCombat = async (requete, reponse) => {
     await combatTrouve.update({ statut: 'waiting', round_courant: 0 }); // Edite Statut et Round Courant
     await combatTrouve.setTourCourant(null); // Réinitialise Tour Courant
     combatTrouve.Participations.forEach(
-      async (participation) => await participation.update({ initiative: 0, posture: 'attaque', isPlayed: false })); // Réunitialise Iniative Posture isPlayed
+      async (participation) => await participation.update({ initiative: 0, posture: 'attaque', is_played: false })); // Réunitialise Iniative Posture is_played
     
     io.emit('restartedBattle'); // => IO Event
     reponse.status(200).json({ message: "Le combat a bien été réinitialisé !" });
@@ -223,7 +223,7 @@ const jouerTour = async (requete, reponse) => {
     await combatTrouve.TourCourant.update({ posture: requete.body.posture, isPlayed: true }); // Edite Participation Courante
     const combatParticipations = await combatTrouve.getParticipations();
     let toursRestants = combatParticipations.filter(
-      (participation) => participation.dataValues.isPlayed === false).sort((a,b) =>  b.dataValues.initiative - a.dataValues.initiative);
+      (participation) => participation.dataValues.is_played === false).sort((a,b) =>  b.dataValues.initiative - a.dataValues.initiative);
 
     if (toursRestants.length === 0) { // Tout le monde a joué
       await combatTrouve.update({ round_courant: combatTrouve.dataValues.round_courant + 1 }); // round_courant +1

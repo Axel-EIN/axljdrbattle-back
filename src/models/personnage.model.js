@@ -23,7 +23,17 @@ export default (sequelize, DataTypes) => {
                 type: DataTypes.SMALLINT,
                 allowNull: false,
                 defaultValue: 100,
-            }
+            },
+            utilisateur_id: {
+                type: DataTypes.INTEGER,
+                allowNull: false,
+                references: {
+                  model: 'utilisateurs',
+                  key: 'id',
+                },
+                onDelete: 'SET NULL',
+                onUpdate: 'CASCADE',
+            },
         },
         {
             timestamps: false,

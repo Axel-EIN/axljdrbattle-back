@@ -1,4 +1,4 @@
-import { Utilisateur } from "../models/index.js"; // Modèle Utilisateur initialisé et connecté à la base données Sequelize
+import { Personnage, Utilisateur } from "../models/index.js"; // Modèle Utilisateur initialisé et connecté à la base données Sequelize
 import bcrypt from "bcrypt"; // Bibliothèque bcrypt pour crypter le mot de passe
 import jwt from "jsonwebtoken"; // Bibliothèque jwt pour créer le cookie/token
 import { ENV } from "./../../config.js";
@@ -122,7 +122,7 @@ const supprimerUtilisateur = async (requete, reponse, next) => {
 
 const connecterUtilisateur = async (requete, reponse, next) => {
   try {
-    const utilisateurTrouve = await Utilisateur.findOne( { where: { identifiant: requete.body.identifiant } } ); // Recherche de l'utilisateur via son identifiant
+    const utilisateurTrouve = await Utilisateur.findOne( { where: { identifiant: requete.body.identifiant }, include: [Personnage] } ); // Recherche de l'utilisateur via son identifiant
     if (!utilisateurTrouve)
       return reponse.status(404).json( { error: "Cette utilisateur n'existe pas !" } );
 

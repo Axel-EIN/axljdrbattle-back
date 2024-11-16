@@ -16,6 +16,15 @@ export default (connection, DataTypes) => {
                 allowNull: false,
                 defaultValue: 0,
             },
+            tour_courant: {
+                type: DataTypes.INTEGER,
+                references: {
+                  model: 'participations',
+                  key: 'id',
+                },
+                onDelete: 'SET NULL',
+                onUpdate: 'CASCADE',
+              },
         },
         {
             timestamps: false,

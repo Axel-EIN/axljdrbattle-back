@@ -5,7 +5,7 @@ export default (connection, DataTypes) => {
             identifiant: {
                 type: DataTypes.STRING,
                 allowNull: false,
-                unique: true
+                unique: 'identifiant_unique_index', // Nommage manuel index => évite duplication après Sequelize.sync({alter: true}
             },
             email: {
                 type: DataTypes.STRING,
@@ -29,7 +29,13 @@ export default (connection, DataTypes) => {
             }
         },
         {
-            timestamp: true,
+            indexes: [
+                { // Définition manuelle index => évite duplication après Sequelize.sync({alter: true})
+                    name: 'identifiant_unique_index',
+                    unique: true,
+                    fields: ['identifiant']
+                }
+            ]
         }
     );
 };

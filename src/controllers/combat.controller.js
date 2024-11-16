@@ -145,11 +145,11 @@ const demarrerCombat = async (requete, reponse) => {
     if (!combatTrouve) return reponse.status(404).json({ error: "Ce combat n'existe pas !" }); // => 404
     await combatTrouve.update({ statut: 'started' }); // Edite statut
 
-    if (combatTrouve.dataValues.roundCourant === 0) {
+    if (combatTrouve.dataValues.round_courant === 0) {
       combatTrouve.Participations.forEach(
         async (participation) => await participation.update({ initiative: Math.floor(100 * Math.random()) })); // Edite Initiative
       const ordreTours = combatTrouve.Participations.sort((a,b) => b.dataValues.initiative - a.dataValues.initiative); // Tri Initiative
-      await combatTrouve.update({ roundCourant: 1 }); // Edite Round Courant
+      await combatTrouve.update({ round_courant: 1 }); // Edite Round Courant
       await combatTrouve.setTourCourant(ordreTours[0]); // Edite Tour Courant
       io.emit('initiativeRolled', ordreTours[0].Personnage.prenom); // => IO Event
       reponse.status(200).json({ message: "Le combat a bien été démarré !" });
@@ -174,7 +174,7 @@ const recommencerCombat = async (requete, reponse) => {
     const combatTrouve = await Combat.findByPk(requete.params.id, { include: [Participation] });
     if (!combatTrouve) return reponse.status(404).json({ error: "Ce combat n'existe pas !" }); // => 404
 
-    await combatTrouve.update({ statut: 'waiting', roundCourant: 0 }); // Edite Statut et Round Courant
+    await combatTrouve.update({ statut: 'waiting', round_courant: 0 }); // Edite Statut et Round Courant
     await combatTrouve.setTourCourant(null); // Réinitialise Tour Courant
     combatTrouve.Participations.forEach(
       async (participation) => await participation.update({ initiative: 0, posture: 'attaque', isPlayed: false })); // Réunitialise Iniative Posture isPlayed
@@ -226,8 +226,7 @@ const jouerTour = async (requete, reponse) => {
       (participation) => participation.dataValues.isPlayed === false).sort((a,b) =>  b.dataValues.initiative - a.dataValues.initiative);
 
     if (toursRestants.length === 0) { // Tout le monde a joué
-      await combatTrouve.update({ roundCourant: combatTrouve.dataValues.roundCourant + 1 }); // roundCourant +1
-      combatParticipations.forEach(async (participation) => await participation.update({ isPlayed: false })); // Réinitialisation
+      await combatTrouve.update({ round_courant: combatTrouve.dataValues.round_courant + 1 }); // round_courant +1
       toursRestants = combatParticipations.sort ((a, b) => b.dataValues.initiative - a.dataValues.initiative);
     }
     

@@ -215,6 +215,7 @@ const arreterCombat = async (requete, reponse) => {
 const jouerTour = async (requete, reponse) => {
   try {
     const combatTrouve = await Combat.findByPk(requete.params.id, { include: [{ model: Participation, as: 'TourCourant', include: [Personnage] }]});
+
     if (!combatTrouve) return reponse.status(404).json({ error: "Ce combat n'existe pas !" }); // => 404
 
     if (requete.user.toJSON().id != combatTrouve.TourCourant.Personnage.dataValues.UtilisateurId)

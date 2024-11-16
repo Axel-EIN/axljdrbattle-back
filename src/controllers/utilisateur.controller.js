@@ -5,7 +5,7 @@ import { ENV } from "./../../config.js";
 import userFieldCheck from "../utils/userfieldcheck.js";
 import { removeFile } from "../utils/managefiles.js";
 
-const recupererUtilisateurs = async (requete, reponse, next) => {
+const recupererUtilisateurs = async (requete, reponse) => {
   try {
     const toutLesUtilisateurs = await Utilisateur.findAll();
     reponse.status(200).json(toutLesUtilisateurs);
@@ -15,7 +15,7 @@ const recupererUtilisateurs = async (requete, reponse, next) => {
   }
 };
 
-const recupererUnUtilisateur = async (requete, reponse, next) => {
+const recupererUnUtilisateur = async (requete, reponse) => {
   try {
     const utilisateurTrouve = await Utilisateur.findByPk(requete.params.id);
     if (!utilisateurTrouve)
@@ -28,7 +28,7 @@ const recupererUnUtilisateur = async (requete, reponse, next) => {
   }
 };
 
-const inscrireUtilisateur = async (requete, reponse, next) => {
+const inscrireUtilisateur = async (requete, reponse) => {
   try {
     const utilisateurNettoye = userFieldCheck(requete.body); // utilitaire pour enlever les prop. vide ou null
     if (!utilisateurNettoye.mdp)
@@ -43,7 +43,7 @@ const inscrireUtilisateur = async (requete, reponse, next) => {
   }
 };
 
-const creerUtilisateur = async (requete, reponse, next) => {
+const creerUtilisateur = async (requete, reponse) => {
   try {
     const utilisateurNettoye = userFieldCheck(requete.body); // utilitaire pour enlever les prop. vide ou null
     if (!utilisateurNettoye.mdp)
@@ -62,7 +62,7 @@ const creerUtilisateur = async (requete, reponse, next) => {
   }
 };
 
-const modifierUtilisateur = async (requete, reponse, next) => {
+const modifierUtilisateur = async (requete, reponse) => {
   try {
     const utilisateurTrouve = await Utilisateur.findByPk(requete.params.id);
 
@@ -96,7 +96,7 @@ const modifierUtilisateur = async (requete, reponse, next) => {
   }
 };
 
-const supprimerUtilisateur = async (requete, reponse, next) => {
+const supprimerUtilisateur = async (requete, reponse) => {
   try {
     const utilisateurTrouve = await Utilisateur.findByPk(requete.params.id);
 
@@ -120,7 +120,7 @@ const supprimerUtilisateur = async (requete, reponse, next) => {
   }
 };
 
-const connecterUtilisateur = async (requete, reponse, next) => {
+const connecterUtilisateur = async (requete, reponse) => {
   try {
     const utilisateurTrouve = await Utilisateur.findOne( { where: { identifiant: requete.body.identifiant }, include: [Personnage] } ); // Recherche de l'utilisateur via son identifiant
     if (!utilisateurTrouve)
@@ -139,7 +139,7 @@ const connecterUtilisateur = async (requete, reponse, next) => {
   }
 };
 
-const deconnecterUtilisateur = async (requete, reponse, next) => {
+const deconnecterUtilisateur = async (requete, reponse) => {
   try {
     if (!requete.user) // requete.user est censé exister si l'utilisateur est connecté
       return reponse.status(403).json( { error: "Vous devez être connecté pour pouvoir vous deconnecter !" } );
@@ -165,5 +165,5 @@ export {
   supprimerUtilisateur,
   connecterUtilisateur,
   deconnecterUtilisateur,
-  recupererUtilisateurCourant,
+  recupererUtilisateurCourant
 };

@@ -11,7 +11,7 @@ export default (connection, DataTypes) => {
                 values: ['waiting', 'started', 'finished', 'paused'],
                 defaultValue: 'waiting',
             },
-            roundCourant: {
+            round_courant: {
                 type: DataTypes.TINYINT,
                 allowNull: false,
                 defaultValue: 0,

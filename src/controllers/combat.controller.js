@@ -220,9 +220,10 @@ const jouerTour = async (requete, reponse) => {
     if (!combatTrouve.TourCourant) return reponse.status(500).json({ error: "Il n'y a pas de tour de jeu !" }); // => 500
 
     // VERIF TOUR COURANT OU MJ
+    const participationCourante = combatTrouve.TourCourant;
+    if (requete.user.dataValues.id != participationCourante.Personnage.dataValues.utilisateur_id && requete.user.dataValues.role != 'mj')
+      return reponse.status(403).json({ error: "Désolé ! Mais ce n'est pas encore à votre tour de jouer ou bien vous n'êtes pas mj !" }); // => 403
 
-    await combatTrouve.TourCourant.update({ posture: requete.body.posture, isPlayed: true }); // Edite Participation Courante
-    const combatParticipations = await combatTrouve.getParticipations();
     let toursRestants = combatParticipations.filter(
       (participation) => participation.dataValues.is_played === false).sort((a,b) =>  b.dataValues.initiative - a.dataValues.initiative);
 

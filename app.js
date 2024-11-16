@@ -3,12 +3,8 @@
 // ================================
 //
 // Le serveur EXPRESS est crée ici puis configurer avec les routeurs, les contrôlleurs, les middleware, les cors
-// Mais juste avant de lancer le serveur on export en app.js au service de socket
+// Avant de lancer le serveur on export app.js au service de socket qui ajoute les websocket et renvoie à server.js pour le lancement .listen
 // Ce service ajoute un serveur websocket en plus à express puis on le renvoie à server.js pour le lancement avec listen
-//
-// 1 => app.js (création du serveur express et configurations)
-// 2 => ./src/services/socket.js (ajout/upgrade du serveur en websocket)
-// 3 => server.js (lancement avec .listen)
 
 import express from 'express';
 import cookieParser from 'cookie-parser'; // Module pour pouvoir lire les cookies

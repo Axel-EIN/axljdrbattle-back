@@ -54,7 +54,7 @@ const ajouterCombat = async (requete, reponse) => {
     if (requete.body.teamB) requete.body.teamB = reformatterValeursEquipe(requete.body.teamB, 2); // Formatage requête teamB
     const tableauUnique = tableauValeurUnique( [...(requete.body.teamA || []), ...(requete.body.teamB || [])] ); // Fusion Unique Array
 
-    tableauUnique.forEach(async (item) => await nouveauCombat.createParticipation({ PersonnageId: item.valueID, team: item.team })); // Crée Participation
+    tableauUnique.forEach(async (item) => await nouveauCombat.createParticipation({ personnage_id: item.valueID, team: item.team })); // Crée Participation
     io.emit('newBattle'); // => IO Event
     reponse.status(201).json({ message: "Le combat et les participations ont bien été ajouté !", nouveauCombat} ); // => REPONSE Combat
   }
@@ -83,7 +83,7 @@ const modifierCombat = async (requete, reponse) => {
       for (let i = 0; i < combatTrouve.Participations.length; i++) {
         let trouvee = false;
         for (let j = 0; j < tableauUnique.length; j++) {
-          if (combatTrouve.Participations[i].dataValues.PersonnageId === tableauUnique[j].valueID) {
+          if (combatTrouve.Participations[i].dataValues.personnage_id === tableauUnique[j].valueID) {
             trouvee = true;
             await combatTrouve.Participations[i].update({ team: tableauUnique[j].team }); // Edite Participation
             break;
@@ -95,12 +95,12 @@ const modifierCombat = async (requete, reponse) => {
       for (let j = 0; j < tableauUnique.length; j++) {
         let trouvee = false;
         for (let i = 0; i < combatTrouve.Participations.length; i++) {
-          if (tableauUnique[j].valueID === combatTrouve.Participations[i].dataValues.PersonnageId) {
+          if (tableauUnique[j].valueID === combatTrouve.Participations[i].dataValues.personnage_id) {
             trouvee = true;
             break;
           }
         }
-        if (trouvee === false) await combatTrouve.createParticipation({ PersonnageId: tableauUnique[j].valueID, team: tableauUnique[j].team }); // Crée Participation
+        if (trouvee === false) await combatTrouve.createParticipation({ personnage_id: tableauUnique[j].valueID, team: tableauUnique[j].team }); // Crée Participation
       }
     }
  

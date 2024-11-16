@@ -224,6 +224,10 @@ const jouerTour = async (requete, reponse) => {
     if (requete.user.dataValues.id != participationCourante.Personnage.dataValues.utilisateur_id && requete.user.dataValues.role != 'mj')
       return reponse.status(403).json({ error: "Désolé ! Mais ce n'est pas encore à votre tour de jouer ou bien vous n'êtes pas mj !" }); // => 403
 
+    // CHANGEMENT DE POSTURE
+    await participationCourante.update({ posture: requete.body.posture }); // Edite Participation Courante Posture
+    io.emit('changementPosture', participationCourante.Personnage.dataValues.prenom, requete.body.posture); // => Signal IO Changement de posture
+
     let toursRestants = combatParticipations.filter(
       (participation) => participation.dataValues.is_played === false).sort((a,b) =>  b.dataValues.initiative - a.dataValues.initiative);
 

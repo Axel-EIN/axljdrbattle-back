@@ -9,7 +9,7 @@ export default (sequelize, DataTypes) => {
             prenom: {
                 type: DataTypes.STRING,
                 allowNull: false,
-                unique: true
+                unique: 'prenom_unique_index',
             },
             illustration: {
                 type: DataTypes.STRING,
@@ -26,7 +26,13 @@ export default (sequelize, DataTypes) => {
             }
         },
         {
-            timestamp: true,
+            indexes: [
+                { 
+                    name: 'prenom_unique_index',
+                    unique: true,
+                    fields: ['prenom']
+                }
+            ],
         }
     );
 };

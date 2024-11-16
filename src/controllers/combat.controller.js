@@ -239,6 +239,14 @@ const jouerTour = async (requete, reponse) => {
       io.emit('degatsAttaque', participationCourante.Personnage.dataValues.prenom, degats, cibleParticipation.Personnage.dataValues.prenom);
     }
     
+    // ATTAQUE 2
+    if (requete.body.cibleAttaque2) {
+      const cibleParticipation2 = combatParticipations.find((item) => item.dataValues.personnage_id == requete.body.cibleAttaque2);
+      const degats2 = Math.floor(33 * Math.random());
+      cibleParticipation2.Personnage.update({ HP: cibleParticipation2.Personnage.dataValues.HP - degats2 });
+      io.emit('degatsAttaque',  participationCourante.Personnage.dataValues.prenom, degats2, cibleParticipation2.Personnage.dataValues.prenom);
+    }
+
     let toursRestants = combatParticipations.filter(
       (participation) => participation.dataValues.is_played === false).sort((a,b) =>  b.dataValues.initiative - a.dataValues.initiative);
 

@@ -5,13 +5,13 @@ import { ENV } from '../../config.js';
 import { Sequelize } from "sequelize";
 
 // Import des modèles
-import modeleUtilisateur from "./utilisateur.model.js";
-import modelePersonnage from "./personnage.model.js";
-import modeleCombat from "./combat.model.js";
-import modeleParticipation from "./participation.model.js";
+import userModel from "./user.model.js";
+import characterModel from "./character.model.js";
+import battleModel from "./battle.model.js";
+import participationModel from "./participation.model.js";
 
 // Création de l'objet pour la connexion à la base de donnée avec Sequelize
-const connexionBDD = new Sequelize(
+const connectionDB = new Sequelize(
     ENV.DB_NAME,
     ENV.DB_USER,
     ENV.DB_PASSWORD,
@@ -22,43 +22,39 @@ const connexionBDD = new Sequelize(
 );
 
 try { // Exécution de la connexion
-    await connexionBDD.authenticate();
+    await connectionDB.authenticate();
     console.log('La connexion à la base de données a été établie avec succès !');
-} catch (erreur) {
-    console.error('Impossible de se connecter à la base de données :', erreur);
+} catch (error) {
+    console.error('Impossible de se connecter à la base de données :', error);
 }
 
 // Mise en relation entre les modèles prédéfini et la connexion BDD
-modeleUtilisateur(connexionBDD, Sequelize);
-modelePersonnage(connexionBDD, Sequelize);
-modeleCombat(connexionBDD, Sequelize);
-modeleParticipation(connexionBDD, Sequelize);
+userModel(connectionDB, Sequelize);
+characterModel(connectionDB, Sequelize);
+battleModel(connectionDB, Sequelize);
+participationModel(connectionDB, Sequelize);
 
-// Récupération des modèles par destructuration
-const { Utilisateur, Personnage, Combat, Participation } = connexionBDD.models; // Nous sommes obligé d'utilisé la propriété .models
+const { User, Character, Battle, Participation } = connectionDB.models; // Récupération des modèles par destructuration depuis la propriété .models de la connection sequelize à la db
 
 // Règles des cardinalités
-Utilisateur.hasMany(Personnage, {foreignKey: 'utilisateur_id'});
-Personnage.belongsTo(Utilisateur,  {foreignKey: 'utilisateur_id'});
+User.hasMany(Character, {foreignKey: 'user_id'});
+Character.belongsTo(User,  {foreignKey: 'user_id'});
+Battle.belongsTo(Character, {as: 'CurrentTurn', foreignKey: 'current_turn_character_id' });
 
-Personnage.hasMany(Participation, {foreignKey: 'personnage_id' });
-Participation.belongsTo(Personnage, {foreignKey: 'personnage_id' });
+Battle.hasMany(Participation, {foreignKey: 'battle_id' });
+Participation.belongsTo(Battle, {foreignKey: 'battle_id' });
 
-Combat.hasMany(Participation, {foreignKey: 'combat_id' });
-Participation.belongsTo(Combat, {foreignKey: 'combat_id' });
-
-Combat.belongsTo(Participation, {as: 'TourCourant', foreignKey: 'tour_courant' });
+Character.hasMany(Participation, {foreignKey: 'character_id' });
+Participation.belongsTo(Character, {foreignKey: 'character_id' });
 
 // Syncrhonisation de la BDD
-await connexionBDD.sync(
-    {alter: true}
-);
+await connectionDB.sync({ alter: true });
 console.log("Synchronisation de la base de données OK !");
 
 // export des Entités initiés
 export {
-    Utilisateur,
-    Personnage,
-    Combat,
+    User,
+    Character,
+    Battle,
     Participation
 }

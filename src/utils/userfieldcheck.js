@@ -7,23 +7,23 @@ const userFieldsCheck = (user) => {
   const cleanedUser = {};
 
   // Identifiant
-  if (user.identifiant && user.identifiant != '' && isString(user.identifiant))
-    cleanedUser.identifiant = user.identifiant;
+  if (user.login && user.login != '' && isString(user.login))
+    cleanedUser.login = user.login;
 
   // Mdp
-  if (user.mdp && user.mdp != '' && isString(user.mdp))
-    cleanedUser.mdp = user.mdp;
+  if (user.password && user.password != '' && isString(user.password))
+    cleanedUser.password = user.password;
 
   // Email
   if (user.email && user.email != '' && isString(user.email))
     cleanedUser.email = user.email;
 
   // Prenom
-  if (user.prenom && user.prenom != '' && isString(user.prenom))
-    cleanedUser.prenom = user.prenom;
+  if (user.firstname && user.firstname != '' && isString(user.firstname))
+    cleanedUser.firstname = user.firstname;
   
   // Role
-  if (user.role && user.role != '' && ['user', 'mj', 'admin'].includes(user.role))
+  if (user.role && user.role != '' && ['user', 'gamemaster', 'admin'].includes(user.role))
     cleanedUser.role = user.role;
 
   return cleanedUser;

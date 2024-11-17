@@ -14,30 +14,30 @@ export default (connection, DataTypes) => {
         type: DataTypes.TINYINT,
         defaultValue: 0,
       },
-      posture: {
+      stance: {
         type:   DataTypes.ENUM,
-        values: ['esquive', 'defense', 'centre', 'attaque', 'assaut'],
-        defaultValue: 'attaque',
+        values: ['dodge', 'defense', 'concentration', 'attack', 'assault'],
+        defaultValue: 'attack',
       },
       is_played: {
         type:   DataTypes.BOOLEAN,
         defaultValue: false,
       },
-      personnage_id: {
+      character_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-          model: 'personnages',
+          model: 'characters',
           key: 'id',
         },
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE',
       },
-      combat_id: {
+      battle_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-          model: 'combats',
+          model: 'battles',
           key: 'id',
         },
         onDelete: 'CASCADE',

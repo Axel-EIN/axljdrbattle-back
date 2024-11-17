@@ -1,4 +1,4 @@
-function tableauValeurUnique(array) {
+function uniqueValueArray(array) {
   let seenValues = new Set();
   const uniqueArray = array.filter((item) => {
     if (!seenValues.has(item.valueID)) {
@@ -10,11 +10,11 @@ function tableauValeurUnique(array) {
   return uniqueArray;
 }
 
-function reformatterValeursEquipe(arrayTeam, teamNumber) {
+function reformatValueTeam(arrayTeam, teamNumber) {
   return arrayTeam.filter((item) => item.value && item.value != '').map((item) => ({valueID: item.value, team: teamNumber}));
 }
 
 export {
-  tableauValeurUnique,
-  reformatterValeursEquipe,
+  uniqueValueArray,
+  reformatValueTeam,
 };

@@ -224,24 +224,10 @@ const stopBattle = async (request, response) => {
 
 const playTurn = async (request, response) => {
   try {
-    const battleFound = await Battle.findByPk(request.params.id,
-      { include:
-        [
-          {
-            model: Character,
-            as: 'CurrentTurn',
-            include: [
-              {
-                model: Participation,
-                where: {
-                  battle_id: request.params.id
-                }
-              }
-            ]
-          }
-        ]
-      }
-    );
+    const battleFound = await Battle.findByPk(
+      request.params.id, { include: [
+        {model: Character, as: 'CurrentTurn', include: [
+          {model: Participation, where: { battle_id: request.params.id } }]}]});
 
     if (!battleFound) return response.status(404).json({ error: "Ce combat n'existe pas !" }); // => 404
     if (!battleFound.CurrentTurn) return response.status(500).json({ error: "Il n'y a pas de tour en jeu !" }); // => 500

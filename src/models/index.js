@@ -1,8 +1,5 @@
-// Import des variables d'environement
-import { ENV } from '../../config.js';
-
-// Import Sequelize
-import { Sequelize } from "sequelize";
+import { ENV } from '../../config.js'; // Import des variables d'environement
+import { Sequelize } from "sequelize"; // Import Sequelize
 
 // Import des modèles
 import userModel from "./user.model.js";

@@ -257,36 +257,45 @@ const playTurn = async (request, response) => {
     await currentCharacter.Participations[0].update({ stance: request.body.stance, current_tn: stance_tn }); // Edite Participation Courante Posture
     io.emit('stanceChanged', currentCharacter.dataValues.firstname, request.body.stance); // => Signal IO Changement de stance
 
-    await currentCharacter.Participations[0].update({ is_played: true });
+    // Gestion Attaques
     const battleParticipations = await battleFound.getParticipations({ include: [Character] });
 
-    // Gestion Attaque 1
-    if (request.body.targetAttack1) {
-      const targetParticipation = battleParticipations.find((item) => item.dataValues.character_id == request.body.targetAttack1);
-      const damage = Math.floor(33 * Math.random());
-      targetParticipation.Character.update({ health: targetParticipation.Character.dataValues.health - damage });
-      io.emit('damageRolled', currentCharacter.dataValues.firstname, damage, targetParticipation.Character.dataValues.firstname);
-    }
-    
-    // Gestion Attaque 2
-    if (request.body.targetAttack2) {
-      const targetParticipation2 = battleParticipations.find((item) => item.dataValues.character_id == request.body.targetAttack2);
-      const damage2 = Math.floor(33 * Math.random());
-      targetParticipation2.Character.update({ health: targetParticipation2.Character.dataValues.health - damage2 });
-      io.emit('damageRolled',  currentCharacter.dataValues.firstname, damage2, targetParticipation2.Character.dataValues.firstname);
+    function handleAttack(targetCharacterID) {
+      const targetParticipation = battleParticipations.find((item) => item.dataValues.character_id == targetCharacterID);
+      let atkRoll = Math.floor(20 * Math.random());
+
+      if (currentCharacter.Participations[0].dataValues.stance == 'assault')
+        atkRoll += 10;
+
+      io.emit('atkRoll', atkRoll, targetParticipation.current_tn);
+
+      if (atkRoll >= targetParticipation.current_tn) {
+        const damage = Math.floor(20 * Math.random());
+        let modifiedHealth = targetParticipation.Character.dataValues.health - damage;
+        if (modifiedHealth < 0) modifiedHealth = 0;
+        targetParticipation.Character.update({ health: modifiedHealth });
+        io.emit('damageRolled', currentCharacter.dataValues.firstname, damage, targetParticipation.Character.dataValues.firstname);
+      } else
+        io.emit('dodgedAttack', currentCharacter.dataValues.firstname, targetParticipation.Character.dataValues.firstname);
     }
 
+    if (request.body.targetAttack1) handleAttack(request.body.targetAttack1);
+    if (request.body.targetAttack2) handleAttack(request.body.targetAttack2);
+    
+    await currentCharacter.Participations[0].update({ is_played: true });
+    const updatedBattleParticipations = await battleFound.getParticipations({ include: [Character] });
+
     // Calcul Tours Restants
-    let remainingTurns = battleParticipations.filter(
+    let remainingTurns = updatedBattleParticipations.filter(
       (participation) => participation.dataValues.is_played === false).sort((a,b) =>  b.dataValues.initiative - a.dataValues.initiative);
 
     // Fin du Round, Début d'un Nouveau Round
     if (remainingTurns.length === 0) { // Tout le monde a joué
       io.emit('newRound', battleFound.current_round + 1);
       await battleFound.update({ current_round: battleFound.dataValues.current_round + 1 }); // current_round +1
-      battleParticipations.forEach(async (participation) =>
+      updatedBattleParticipations.forEach(async (participation) =>
         await participation.update({ is_played: false })); // Réinitialisation
-      remainingTurns = battleParticipations.sort ((a, b) => b.dataValues.initiative - a.dataValues.initiative);
+      remainingTurns = updatedBattleParticipations.sort ((a, b) => b.dataValues.initiative - a.dataValues.initiative);
     }
     
     // NOUVEAU TOUR DE JEU

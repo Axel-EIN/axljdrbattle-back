@@ -1,30 +1,31 @@
 export default (connection, DataTypes) => {
     connection.define(
-        "Combat",
+        "Battle",
         {
-            titre: {
+            title: {
                 type: DataTypes.STRING,
                 allowNull: false,
             },
-            statut: {
+            status: {
                 type:   DataTypes.ENUM,
                 values: ['waiting', 'started', 'finished', 'paused'],
                 defaultValue: 'waiting',
             },
-            round_courant: {
+            current_round: {
                 type: DataTypes.TINYINT,
                 allowNull: false,
                 defaultValue: 0,
             },
-            tour_courant: {
+            current_turn_character_id: {
                 type: DataTypes.INTEGER,
+                allowNull: true,
                 references: {
-                  model: 'participations',
+                  model: 'characters',
                   key: 'id',
                 },
                 onDelete: 'SET NULL',
-                onUpdate: 'CASCADE',
-              },
+                onUpdate: 'CASCADE'
+            }
         },
         {
             timestamps: false,

@@ -4,27 +4,27 @@ import verifyAdmin from '../middlewares/admin.js';
 import multer from '../middlewares/multer.js'; // Bibliothèque Middleware qui récupère un fichier image d'un Formulaire et l'upload dans un dossier destination en le renomant
 
 import {
-  inscrireUtilisateur,
-  creerUtilisateur,
-  recupererUtilisateurs,
-  recupererUnUtilisateur,
-  modifierUtilisateur,
-  supprimerUtilisateur,
-  connecterUtilisateur,
-  deconnecterUtilisateur,
-  recupererUtilisateurCourant
-} from "../controllers/utilisateur.controller.js";
+  registerUser,
+  addUser,
+  getAllUsers,
+  getOneUser,
+  editUser,
+  deleteUser,
+  loginUser,
+  logoutUser,
+  getCurrentUser
+} from "../controllers/user.controller.js";
 
 const router = express.Router();
 
-router.post("/inscrire", inscrireUtilisateur);
-router.post("/creer", verifyToken, verifyAdmin, multer, creerUtilisateur);
-router.get("/tous", recupererUtilisateurs);
-router.get("/un/:id", recupererUnUtilisateur);
-router.put("/modifier/:id", verifyToken, verifyAdmin, multer, modifierUtilisateur);
-router.delete("/supprimer/:id", verifyToken, verifyAdmin, supprimerUtilisateur);
-router.post("/connecter", connecterUtilisateur);
-router.post("/deconnecter", verifyToken, deconnecterUtilisateur);
-router.get("/courant", verifyToken, recupererUtilisateurCourant);
+router.post("/register", registerUser);
+router.get("/all", getAllUsers);
+router.get("/one/:id", getOneUser);
+router.post("/add", verifyToken, verifyAdmin, multer, addUser);
+router.put("/edit/:id", verifyToken, verifyAdmin, multer, editUser);
+router.delete("/delete/:id", verifyToken, verifyAdmin, deleteUser);
+router.post("/login", loginUser);
+router.post("/logout", verifyToken, logoutUser);
+router.get("/current", verifyToken, getCurrentUser);
 
 export default router;

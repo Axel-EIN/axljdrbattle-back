@@ -185,7 +185,7 @@ const restartBattle = async (request, response) => {
     await battleFound.setCurrentTurn(null); // Réinitialise Tour Courant
 
     battleFound.Participations.forEach(async (participation) =>
-      await participation.update({ initiative: 0, stance: 'attack', is_played: false })); // Réunitialise Iniative Posture is_played
+      await participation.update({ initiative: 0, stance: 'attack', is_played: false, current_tn: 10 })); // Réunitialise Iniative Posture is_played
     
     io.emit('restartedBattle'); // => IO Event
     response.status(200).json({ message: "Le combat a bien été réinitialisé !" });

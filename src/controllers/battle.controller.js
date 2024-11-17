@@ -238,8 +238,23 @@ const playTurn = async (request, response) => {
       return response.status(403).json({ error: "Désolé ! Mais ce n'est pas encore à votre tour de jouer ou bien vous n'êtes pas mj !" }); // => 403
 
     // Changement de posture
-    console.log(currentCharacter.toJSON());
-    await currentCharacter.Participations[0].update({ stance: request.body.stance }); // Edite Participation Courante Posture
+    let stance_tn;
+    switch (request.body.stance) {
+      case 'attack':
+      case 'concentration':
+        stance_tn = 10;
+        break;
+      case 'defense':
+        stance_tn = 15;
+        break;
+      case 'dodge':
+        stance_tn = 25;
+        break;
+      case 'assault':
+        stance_tn = 0;
+        break;
+    }
+    await currentCharacter.Participations[0].update({ stance: request.body.stance, current_tn: stance_tn }); // Edite Participation Courante Posture
     io.emit('stanceChanged', currentCharacter.dataValues.firstname, request.body.stance); // => Signal IO Changement de stance
 
     await currentCharacter.Participations[0].update({ is_played: true });

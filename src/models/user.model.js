@@ -1,21 +1,22 @@
 export default (connection, DataTypes) => {
     connection.define(
-        "Utilisateur",
+        "User",
         {
-            identifiant: {
+            login: {
                 type: DataTypes.STRING,
                 allowNull: false,
-                unique: 'identifiant_unique_index', // Nommage manuel index => évite duplication après Sequelize.sync({alter: true}
+                unique: 'login_unique_index' // Nommage manuel pour éviter les duplications sur .sync({alter: true}
             },
             email: {
                 type: DataTypes.STRING,
                 allowNull: false,
+                unique: 'email_unique_index' // Nommage manuel pour éviter les duplications sur .sync({alter: true}
             },
-            mdp: {
+            password: {
                 type: DataTypes.STRING,
                 allowNull: false
             },
-            prenom: {
+            firstname: {
                 type: DataTypes.STRING,
                 allowNull: false
             },
@@ -24,17 +25,22 @@ export default (connection, DataTypes) => {
             },
             role: {
                 type:   DataTypes.ENUM,
-                values: ['user', 'mj', 'admin'],
+                values: ['user', 'gamemaster', 'admin'],
                 defaultValue: 'user'
             }
         },
         {
             timestamps: false,
-            indexes: [
-                { // Définition manuelle index => évite duplication après Sequelize.sync({alter: true})
-                    name: 'identifiant_unique_index',
+            indexes: [ // Nommage manuel pour éviter les duplications sur .sync({alter: true}
+                { 
+                    name: 'login_unique_index',
                     unique: true,
-                    fields: ['identifiant']
+                    fields: ['login']
+                },
+                { 
+                    name: 'email_unique_index',
+                    unique: true,
+                    fields: ['email']
                 }
             ]
         }

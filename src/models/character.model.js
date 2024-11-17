@@ -1,47 +1,47 @@
 export default (sequelize, DataTypes) => {
     sequelize.define(
-        'Personnage',
+        'Character',
         {
-            nom: {
+            lastname: {
                 type: DataTypes.STRING,
                 allowNull: false
             },
-            prenom: {
+            firstname: {
                 type: DataTypes.STRING,
                 allowNull: false,
-                unique: 'prenom_unique_index',
-            },
-            illustration: {
-                type: DataTypes.STRING,
-                allowNull: true
+                unique: 'firstname_unique_index' // Nommage manuel pour éviter les duplications sur .sync({alter: true}
             },
             portrait: {
                 type: DataTypes.STRING,
                 allowNull: true
             },
-            HP: {
+            illustration: {
+                type: DataTypes.STRING,
+                allowNull: true
+            },
+            health: {
                 type: DataTypes.SMALLINT,
                 allowNull: false,
                 defaultValue: 100,
             },
-            utilisateur_id: {
+            user_id: {
                 type: DataTypes.INTEGER,
-                allowNull: false,
+                allowNull: true,
                 references: {
-                  model: 'utilisateurs',
+                  model: 'users',
                   key: 'id',
                 },
                 onDelete: 'SET NULL',
-                onUpdate: 'CASCADE',
-            },
+                onUpdate: 'CASCADE'
+            }
         },
         {
             timestamps: false,
-            indexes: [
+            indexes: [ // Nommage manuel pour éviter les duplications sur .sync({alter: true}
                 { 
-                    name: 'prenom_unique_index',
+                    name: 'firstname_unique_index',
                     unique: true,
-                    fields: ['prenom']
+                    fields: ['firstname']
                 }
             ],
         }

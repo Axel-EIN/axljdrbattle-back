@@ -19,6 +19,11 @@ export default (connection, DataTypes) => {
         values: ['dodge', 'defense', 'concentration', 'attack', 'assault'],
         defaultValue: 'attack',
       },
+      current_tn: {
+        type: DataTypes.SMALLINT,
+        allowNull: false,
+        defaultValue: 10,
+      },
       is_played: {
         type:   DataTypes.BOOLEAN,
         defaultValue: false,

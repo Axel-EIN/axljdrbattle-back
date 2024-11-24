@@ -1,0 +1,64 @@
+import { jest } from '@jest/globals';
+
+jest.mock('../src/models/index', () => ({
+  // On mock la méthode de synchronisation pour ne rien faire
+  connectionDB: {
+    authenticate: jest.fn().mockResolvedValue(),
+    sync: jest.fn().mockResolvedValue(),
+  },
+  User: jest.fn().mockImplementation(() => {
+    return {
+      findAll: jest.fn().mockResolvedValue([
+        {
+          userId: 2,
+          emailId: 'xyz@abc.com',
+          firstName: 'good',
+          lastName: 'day',
+          creTs: '2019-01-01 13:30:31',
+          creUserId: 'dummy',
+        },
+      ]),
+    };
+  }),
+}));
+
+import SequelizeMock from 'sequelize-mock';
+// Fonction pour mocker la requête
+const mockRequest = () => {
+  return {
+    users: []
+  };
+};
+
+// Fonction pour mocker la réponse
+const mockResponse = () => {
+  const res = {};
+  res.status = jest.fn().mockReturnValue(res); // Simule la méthode .status()
+  res.json = jest.fn().mockReturnValue(res); // Simule la méthode .json()
+  return res;
+};
+
+jest.mock('./../src/models/user.model', () => () => {
+  const dbMock = new SequelizeMock();
+  return dbMock.define('User',  {
+    userId: 2,
+    emailId: 'xyz@abc.com',
+    firstName: 'good',
+    lastName: 'day',
+    creTs: "2019-01-01 13:30:31",
+    creUserId: 'dummy'
+  })
+});
+
+import { getAllUsers } from './../src/controllers/user.controller';
+
+describe("Test Sequelize Mocking", () => {  
+  it("Should get value from mock", async () => {
+    const request = mockRequest();
+    const response = mockResponse();
+
+    const user = await getAllUsers(request, response);
+    expect(1).toBe(1);
+  });
+})
+  

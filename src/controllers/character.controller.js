@@ -69,21 +69,21 @@ const editCharacter = async (request, response) => {
     if (!characterFound) return response.status(404).json( { error: "Ce personnage n'existe pas !" } );
 
     if (request.files && request.files.length > 0) // Si des fichiers images sont présents par multer
-        request.files.forEach((file) =>
-          request.body[file.fieldname] = "images/" + file.fieldname + "s/" + file.filename ); // Pour chaque élément prépare la request
+      request.files.forEach((file) =>
+        request.body[file.fieldname] = "images/" + file.fieldname + "s/" + file.filename ); // Pour chaque élément prépare la request
 
-    let previousPortrait;
+    let previousPortrait = null;
     if (request.body.portrait && characterFound.portrait) previousPortrait = characterFound.portrait;
 
-    let previousIllustration;
+    let previousIllustration = null;
     if (request.body.illustration && characterFound.illustration) previousIllustration = characterFound.illustration;
 
-    await characterFound.update(request.body);
+    const updatedCharacter = await characterFound.update(request.body);
 
     if (previousPortrait) removeFile(previousPortrait);
     if (previousIllustration) removeFile(previousIllustration);
 
-    response.status(200).json({ message: "Le personnage a bien été modifié !", characterFound });
+    response.status(200).json({ message: "Le personnage a bien été modifié !", updatedCharacter });
   } catch (error) {
     console.log(error);
     response.status(500).json({ error: "Erreur interne lors de la modification du personnage !" });

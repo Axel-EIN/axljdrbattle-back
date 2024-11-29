@@ -176,7 +176,13 @@ const logoutUser = async (request, response) => {
 // ========================
 
 const getCurrentUser = (request, response) => {
-  return response.json(request.user); // request.user est censé exister si l'utilisateur s'est déjà connecté
+  try {
+    if (!request.user) return response.status(403).json({ error: "Vous devez être connecté pour récupérer votre session !" });
+    response.status(200).json(request.user);
+  } catch (error) {
+    console.log(error);
+    response.status(500).json({ error: "Erreur interne lors de la récupération de la session !" });
+  }
 };
 
 export {

@@ -44,10 +44,11 @@ const addCharacter = async (request, response) => {
       request.files.forEach( (file) =>
         request.body[file.fieldname] = "images/" + file.fieldname + "s/" + file.filename ); // Pour chaque élément prépare la request
 
-    const userFound = await User.findByPk( request.body.user_id );
+    let userFound = null;
+    if (request.body.user_id) userFound = await User.findByPk(request.body.user_id);
 
-    if (userFound) await userFound.createCharacter(request.body);
-    else await Character.create(request.body);
+    if (!userFound) await Character.create(request.body);
+    else await userFound.createCharacter(request.body);
 
     response.status(201).json({ message: "Le personnage a bien été ajouté !" });
   } catch (error) {

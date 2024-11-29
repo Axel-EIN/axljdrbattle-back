@@ -18,22 +18,27 @@ const connectionDB = new Sequelize(
     }
 );
 
-try { // Exécution de la connexion
-    await connectionDB.authenticate();
-    console.log('La connexion à la base de données a été établie avec succès !');
-} catch (error) {
-    console.error('Impossible de se connecter à la base de données :', error);
+// Authentification pour la connexion à la BDD
+if (ENV.NODE_ENV === 'test') {
+    console.log('Running in TEST mode - Database connection skipped.');
+} else {
+    try {
+        await connectionDB.authenticate();
+        console.log('La connexion à la base de données a été établie avec succès !');
+    } catch (error) {
+        console.error('Impossible de se connecter à la base de données :', error);
+    }
 }
 
-// Mise en relation entre les modèles prédéfini et la connexion BDD
+// Mise en relation et initialisation des modèles avec la connexion BDD
 userModel(connectionDB, Sequelize);
 characterModel(connectionDB, Sequelize);
 battleModel(connectionDB, Sequelize);
 participationModel(connectionDB, Sequelize);
 
-const { User, Character, Battle, Participation } = connectionDB.models; // Récupération des modèles par destructuration depuis la propriété .models de la connection sequelize à la db
+const { User, Character, Battle, Participation } = connectionDB.models; // Récupération des modèles initialisés par destructuration de la propriété .models
 
-// Règles des cardinalités
+// Relations entre modèles et cardinalités
 User.hasMany(Character, {foreignKey: 'user_id'});
 Character.belongsTo(User,  {foreignKey: 'user_id'});
 Battle.belongsTo(Character, {as: 'CurrentTurn', foreignKey: 'current_turn_character_id' });
@@ -44,14 +49,18 @@ Participation.belongsTo(Battle, {foreignKey: 'battle_id' });
 Character.hasMany(Participation, {foreignKey: 'character_id' });
 Participation.belongsTo(Character, {foreignKey: 'character_id' });
 
-// Syncrhonisation de la BDD
-await connectionDB.sync({ alter: true });
-console.log("Synchronisation de la base de données OK !");
+// Synchronisation des tables de la BDD
+if (ENV.NODE_ENV === 'test') {
+    console.log('Running in TEST mode - Database sync skipped.');
+} else {
+    await connectionDB.sync({ alter: true });
+    console.log("Synchronisation de la base de données OK !");
+}
 
-// export des Entités initiés
+// export des Modèles initiés
 export {
     User,
     Character,
     Battle,
-    Participation
-}
+    Participation,
+};

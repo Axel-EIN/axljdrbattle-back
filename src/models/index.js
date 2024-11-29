@@ -50,9 +50,7 @@ Character.hasMany(Participation, {foreignKey: 'character_id' });
 Participation.belongsTo(Character, {foreignKey: 'character_id' });
 
 // Synchronisation des tables de la BDD
-if (ENV.NODE_ENV === 'test') {
-    console.log('Running in TEST mode - Database sync skipped.');
-} else {
+if (ENV.NODE_ENV === 'dev') {
     await connectionDB.sync({ alter: true });
     console.log("Synchronisation de la base de données OK !");
 }

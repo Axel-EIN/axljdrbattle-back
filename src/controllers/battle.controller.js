@@ -185,7 +185,7 @@ const restartBattle = async (request, response) => {
     await battleFound.setCurrentTurn(null); // Réinitialise Tour Courant
 
     battleFound.Participations.forEach(async (participation) =>
-      await participation.update({ initiative: 0, stance: 'attack', is_played: false, current_tn: 10 })); // Réunitialise Iniative Posture is_played
+      await participation.update({ initiative: 0, stance: 'attack', is_played: false, current_tn: 10, is_out: false }));
     
     io.emit('restartedBattle'); // => IO Event
     response.status(200).json({ message: "Le combat a bien été réinitialisé !" });
@@ -277,6 +277,13 @@ const playTurn = async (request, response) => {
 
         await targetParticipation.Character.update({ health: modifiedHealth });
         io.emit('damageRolled', currentCharacter.dataValues.firstname, damage, targetParticipation.Character.dataValues.firstname);
+
+        // Si vie = 0, out
+        if (modifiedHealth === 0) {
+          await targetParticipation.update({ is_out: true });
+          io.emit('isOut', targetParticipation.Character.dataValues.firstname);
+        }
+
       } else
         io.emit('dodgedAttack', currentCharacter.dataValues.firstname, targetParticipation.Character.dataValues.firstname);
     }
@@ -289,7 +296,7 @@ const playTurn = async (request, response) => {
 
     // Calcul Tours Restants
     let remainingTurns = updatedBattleParticipations.filter(
-      (participation) => participation.dataValues.is_played === false).sort((a,b) =>  b.dataValues.initiative - a.dataValues.initiative);
+      (participation) => participation.dataValues.is_played === false && participation.dataValues.is_out === false).sort((a,b) =>  b.dataValues.initiative - a.dataValues.initiative);
 
     // Fin du Round, Début d'un Nouveau Round
     if (remainingTurns.length === 0) { // Tout le monde a joué
@@ -297,7 +304,7 @@ const playTurn = async (request, response) => {
       await battleFound.update({ current_round: battleFound.dataValues.current_round + 1 }); // current_round +1
       updatedBattleParticipations.forEach(async (participation) =>
         await participation.update({ is_played: false })); // Réinitialisation
-      remainingTurns = updatedBattleParticipations.sort ((a, b) => b.dataValues.initiative - a.dataValues.initiative);
+      remainingTurns = updatedBattleParticipations.filter(p => p.dataValues.is_out === false).sort ((a, b) => b.dataValues.initiative - a.dataValues.initiative);
     }
     
     // NOUVEAU TOUR DE JEU

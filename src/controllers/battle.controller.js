@@ -181,7 +181,7 @@ const restartBattle = async (request, response) => {
     const battleFound = await Battle.findByPk(request.params.id, { include: [Participation] });
     if (!battleFound) return response.status(404).json({ error: "Ce combat n'existe pas !" }); // => 404
 
-    await battleFound.update({ status: 'waiting', current_round: 0 }); // Edite Statut et Round Courant
+    await battleFound.update({ status: 'waiting', current_round: 0, winner_team: null }); // Edite Statut et Round Courant
     await battleFound.setCurrentTurn(null); // Réinitialise Tour Courant
 
     battleFound.Participations.forEach(async (participation) =>
@@ -293,6 +293,20 @@ const playTurn = async (request, response) => {
     
     await currentCharacter.Participations[0].update({ is_played: true });
     const updatedBattleParticipations = await battleFound.getParticipations({ include: [Character] });
+
+    // Condition de victoire
+    const allTeamAOut = updatedBattleParticipations.filter(p => p.dataValues.team === 1).every(p => p.dataValues.is_out === true);
+    const allTeamBOut = updatedBattleParticipations.filter(p => p.dataValues.team === 2).every(p => p.dataValues.is_out === true);
+
+    if (allTeamAOut) {
+      await battleFound.update({ status: 'finished', winner_team: 2 });
+      io.emit('teamVictory', 'Team B');
+      return response.status(200).json({ message: "Team B a gagné, le combat est terminé !" });
+    } else if (allTeamBOut) {
+      await battleFound.update({ status: 'finished', winner_team: 1 });
+      io.emit('teamVictory', 'Team A'); // Team A gagne
+      return response.status(200).json({ message: "Team A a gagné, le combat est terminé !" });
+    }
 
     // Calcul Tours Restants
     let remainingTurns = updatedBattleParticipations.filter(

@@ -206,7 +206,7 @@ const stopBattle = async (request, response) => {
     const battleFound = await Battle.findByPk(request.params.id);
     if (!battleFound) return response.status(404).json({ error: "Ce combat n'existe pas !" }); // => 404
 
-    battleFound.update({ status: 'paused' }); // Edite Statut
+    await battleFound.update({ status: 'paused' }); // Edite Statut
 
     io.emit('pausedBattle'); // => IO Event
     response.status(200).json({ message: "Le combat a bien été mis en pause !" });
@@ -260,7 +260,7 @@ const playTurn = async (request, response) => {
     // Gestion Attaques
     const battleParticipations = await battleFound.getParticipations({ include: [Character] });
 
-    function handleAttack(targetCharacterID) {
+    async function handleAttack(targetCharacterID) {
       const targetParticipation = battleParticipations.find((item) => item.dataValues.character_id == targetCharacterID);
       let atkRoll = Math.floor(20 * Math.random());
 
@@ -273,7 +273,8 @@ const playTurn = async (request, response) => {
         const damage = Math.floor(20 * Math.random());
         let modifiedHealth = targetParticipation.Character.dataValues.health - damage;
         if (modifiedHealth < 0) modifiedHealth = 0;
-        targetParticipation.Character.update({ health: modifiedHealth });
+
+        await targetParticipation.Character.update({ health: modifiedHealth });
         io.emit('damageRolled', currentCharacter.dataValues.firstname, damage, targetParticipation.Character.dataValues.firstname);
       } else
         io.emit('dodgedAttack', currentCharacter.dataValues.firstname, targetParticipation.Character.dataValues.firstname);

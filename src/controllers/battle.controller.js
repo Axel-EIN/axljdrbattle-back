@@ -309,6 +309,28 @@ const playTurn = async (request, response) => {
   }
 }
 
+// ======================
+// === RESTORE HEALTH ===
+// ======================
+
+const restoreHealth = async (request, response) => {
+  try {
+    const battleFound = await Battle.findByPk(request.params.id, { include: [ { model: Participation, include: [Character] } ] } );
+    if (!battleFound) return response.status(404).json({ error: "Ce combat n'existe pas !" });
+    if (battleFound.status != 'waiting') return response.status(403).json({ error: "Vous ne pouvez restaurer pendant un combat en cours" });
+
+    battleFound.Participations.forEach(async oneParticipation =>
+      await oneParticipation.Character.update({ health: 100 }) );
+    
+    io.emit('restoredCharacters'); // => IO Event
+    response.status(200).json({ message: "La vie des personnages a été restaurés !" });
+  }
+  catch (error) {
+    console.log(error);
+    response.status(500).json({ error: "Erreur interne lors de la restauration de la vie des personnages !" });
+  }
+}
+
 export {
     getAllBattles,
     getOneBattle,
@@ -319,4 +341,5 @@ export {
     restartBattle,
     stopBattle,
     playTurn,
+    restoreHealth,
 };

@@ -28,6 +28,10 @@ export default (connection, DataTypes) => {
         type:   DataTypes.BOOLEAN,
         defaultValue: false,
       },
+      is_out: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+      },
       character_id: {
         type: DataTypes.INTEGER,
         allowNull: false,

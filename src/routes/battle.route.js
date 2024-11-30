@@ -1,5 +1,6 @@
 import express from "express";
 import verifyToken from '../middlewares/auth.js';
+import verifyGameMaster from '../middlewares/gamemaster.js';
 import {
   getAllBattles,
   getOneBattle,
@@ -16,12 +17,12 @@ const router = express.Router();
 
 router.get("/all", getAllBattles);
 router.get("/one/:id", getOneBattle);
-router.post("/add", addBattle);
-router.put("/edit/:id", editBattle);
-router.delete("/delete/:id", deleteBattle);
-router.put("/start/:id", startBattle);
-router.put("/restart/:id", restartBattle);
-router.put("/stop/:id", stopBattle);
+router.post("/add", verifyToken, verifyGameMaster, addBattle);
+router.put("/edit/:id", verifyToken, verifyGameMaster, editBattle);
+router.delete("/delete/:id", verifyToken, verifyGameMaster, deleteBattle);
+router.put("/start/:id", verifyToken, verifyGameMaster, startBattle);
+router.put("/restart/:id", verifyToken, verifyGameMaster, restartBattle);
+router.put("/stop/:id", verifyToken, verifyGameMaster, stopBattle);
 router.put("/turn/:id", verifyToken, playTurn);
 
 export default router;

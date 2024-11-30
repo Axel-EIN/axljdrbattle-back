@@ -16,6 +16,11 @@ export default (connection, DataTypes) => {
                 allowNull: false,
                 defaultValue: 0,
             },
+            winner_team: {
+                type: DataTypes.TINYINT,
+                allowNull: true,
+                defaultValue: null,
+            },
             current_turn_character_id: {
                 type: DataTypes.INTEGER,
                 allowNull: true,

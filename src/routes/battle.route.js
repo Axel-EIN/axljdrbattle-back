@@ -11,6 +11,7 @@ import {
   restartBattle,
   stopBattle,
   playTurn,
+  restoreHealth,
 } from "../controllers/battle.controller.js";
 
 const router = express.Router();
@@ -24,5 +25,6 @@ router.put("/start/:id", verifyToken, verifyGameMaster, startBattle);
 router.put("/restart/:id", verifyToken, verifyGameMaster, restartBattle);
 router.put("/stop/:id", verifyToken, verifyGameMaster, stopBattle);
 router.put("/turn/:id", verifyToken, playTurn);
+router.put("/restore/:id", verifyToken, verifyGameMaster, restoreHealth);
 
 export default router;

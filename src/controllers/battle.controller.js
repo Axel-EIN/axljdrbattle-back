@@ -262,7 +262,7 @@ const playTurn = async (request, response) => {
 
     async function handleAttack(targetCharacterID) {
       const targetParticipation = battleParticipations.find((item) => item.dataValues.character_id == targetCharacterID);
-      let atkRoll = Math.floor(20 * Math.random());
+      let atkRoll = Math.floor(30 * Math.random());
 
       if (currentCharacter.Participations[0].dataValues.stance == 'assault')
         atkRoll += 10;
@@ -270,7 +270,8 @@ const playTurn = async (request, response) => {
       io.emit('atkRoll', atkRoll, targetParticipation.current_tn);
 
       if (atkRoll >= targetParticipation.current_tn) {
-        const damage = Math.floor(20 * Math.random());
+        const baseDamage = 10;
+        const damage = baseDamage + Math.floor(20 * Math.random());
         let modifiedHealth = targetParticipation.Character.dataValues.health - damage;
         if (modifiedHealth < 0) modifiedHealth = 0;
 

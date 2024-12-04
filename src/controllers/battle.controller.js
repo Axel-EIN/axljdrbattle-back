@@ -5,6 +5,7 @@ import { User } from "../models/index.js"; // Modèle User initialisé
 import { io } from "../services/socket.js"; // Service SocketIO
 import { uniqueValueArray } from "../utils/utils.js";
 import { reformatValueTeam } from "../utils/utils.js";
+import { Op } from 'sequelize';
 
 // ====================
 // === RETRIEVE ALL ===
@@ -39,6 +40,32 @@ const getOneBattle = async (request, response) => {
     catch (error) {
         console.log(error);
         response.status(500).json({ error: "Erreur interne lors de la récupération d'un combat !" });
+    }
+}
+
+
+// ===================
+// === LAST ACTIVE ===
+// ===================
+
+const getLastActiveBattle = async (request, response) => {
+    try {
+        const battleFound = await Battle.findOne({
+            where: { status: { [Op.ne]: 'finished' }, },
+            order: [['createdAt', 'DESC']],
+            include: [
+                {model: Participation, include: [Character],},
+                {model: Character, as: 'CurrentTurn',},
+            ],
+        });
+
+        if (!battleFound) return response.status(404).json({ error: "Il n'y a pas de combat actif" }); // => 404
+        
+        response.status(200).json(battleFound); // => REPONSE Battle
+    }
+    catch (error) {
+        console.log(error);
+        response.status(500).json({ error: "Erreur interne lors de la récupération du dernier combat actif !" });
     }
 }
 

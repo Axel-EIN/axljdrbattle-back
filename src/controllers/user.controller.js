@@ -140,7 +140,9 @@ const deleteUser = async (request, response) => {
 
 const loginUser = async (request, response) => {
   try {
-    const userFound = await User.findOne({ where: { login: request.body.login }, include: [Character] });
+    const userFound = await User.findOne({ where: { login: request.body.login }, include: [
+        {model: Character, include: [Participation]}
+    ]});
     if (!userFound) return response.status(404).json({ error: "Cette utilisateur n'existe pas !" });
 
     const passwordCompareResult = await bcrypt.compare(request.body.password, userFound.password);

@@ -24,7 +24,7 @@ if (ENV.NODE_ENV === 'test') {
 } else {
     try {
         await connectionDB.authenticate();
-        console.log('La connexion à la base de données a été établie avec succès !');
+        console.log('La connexion à la base de données a été établie avec succès, WESH ? !');
     } catch (error) {
         console.error('Impossible de se connecter à la base de données :', error);
     }
@@ -50,6 +50,7 @@ Character.hasMany(Participation, {foreignKey: 'character_id' });
 Participation.belongsTo(Character, {foreignKey: 'character_id' });
 
 // Synchronisation des tables de la BDD
+console.log('ENV.NODE_ENV :', ENV.NODE_ENV);
 if (ENV.NODE_ENV === 'dev') {
     await connectionDB.sync({ alter: true });
     console.log("Synchronisation de la base de données OK !");

@@ -11,7 +11,7 @@ import { removeFile } from "../utils/managefiles.js";
 
 const getAllUsers = async (request, response) => {
   try {
-    const allUsers = await User.findAll();
+    const allUsers = await User.findAll({include: [Character]});
     response.status(200).json(allUsers);
   } catch (error) {
     console.log(error);

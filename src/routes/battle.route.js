@@ -4,6 +4,7 @@ import verifyGameMaster from '../middlewares/gamemaster.js';
 import {
   getAllBattles,
   getOneBattle,
+  getLastActiveBattle,
   addBattle,
   editBattle,
   deleteBattle,
@@ -18,6 +19,7 @@ const router = express.Router();
 
 router.get("/all", getAllBattles);
 router.get("/one/:id", getOneBattle);
+router.get("/lastactive", getLastActiveBattle);
 router.post("/add", verifyToken, verifyGameMaster, addBattle);
 router.put("/edit/:id", verifyToken, verifyGameMaster, editBattle);
 router.delete("/delete/:id", verifyToken, verifyGameMaster, deleteBattle);

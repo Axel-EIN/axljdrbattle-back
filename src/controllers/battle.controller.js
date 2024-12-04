@@ -288,14 +288,13 @@ const playTurn = async (request, response) => {
     // Gestion Attaques
     const battleParticipations = await battleFound.getParticipations({ include: [Character] });
 
-    async function handleAttack(targetCharacterID) {
+    async function handleAttack(targetCharacterID, nthAttack) {
+      await delay(1000);
       const targetParticipation = battleParticipations.find((item) => item.dataValues.character_id == targetCharacterID);
       let atkRoll = Math.floor(30 * Math.random());
 
       if (currentCharacter.Participations[0].dataValues.stance == 'assault')
         atkRoll += 10;
-
-      io.emit('atkRoll', atkRoll, targetParticipation.current_tn);
 
       if (atkRoll >= targetParticipation.current_tn) {
         const baseDamage = 10;
@@ -304,20 +303,25 @@ const playTurn = async (request, response) => {
         if (modifiedHealth < 0) modifiedHealth = 0;
 
         await targetParticipation.Character.update({ health: modifiedHealth });
-        io.emit('damageRolled', currentCharacter.dataValues.firstname, damage, targetParticipation.Character.dataValues.firstname);
+        io.emit('damageRolled', currentCharacter.dataValues.firstname, targetParticipation.Character.dataValues.firstname, atkRoll, targetParticipation.current_tn, damage, nthAttack, targetParticipation.character_id);
+        await delay(1000);
 
         // Si vie = 0, out
-        if (modifiedHealth === 0) {
+        const refreshedTargetParticipation = await Participation.findByPk(targetParticipation.id)
+        if (modifiedHealth === 0 && !refreshedTargetParticipation.is_out) {
           await targetParticipation.update({ is_out: true });
           io.emit('isOut', targetParticipation.Character.dataValues.firstname);
+          await delay(1000);
         }
 
-      } else
-        io.emit('dodgedAttack', currentCharacter.dataValues.firstname, targetParticipation.Character.dataValues.firstname);
+      } else {
+          io.emit('dodgedAttack', currentCharacter.dataValues.firstname, targetParticipation.Character.dataValues.firstname, atkRoll, targetParticipation.current_tn);
+          await delay(1000);
+      }
     }
 
-    if (request.body.targetAttack1) handleAttack(request.body.targetAttack1);
-    if (request.body.targetAttack2) handleAttack(request.body.targetAttack2);
+    if (request.body.targetAttack1) handleAttack(request.body.targetAttack1, 1);
+    if (request.body.targetAttack2) handleAttack(request.body.targetAttack2, 2);
     
     await currentCharacter.Participations[0].update({ is_played: true });
     const updatedBattleParticipations = await battleFound.getParticipations({ include: [Character] });
@@ -349,8 +353,17 @@ const playTurn = async (request, response) => {
       remainingTurns = updatedBattleParticipations.filter(p => p.dataValues.is_out === false).sort ((a, b) => b.dataValues.initiative - a.dataValues.initiative);
     }
     
+    // Fonction pour créer un délai (en millisecondes)
+    function delay(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    // Attente de 3 secondes avant de continuer
+    await delay(2000);
+
     // NOUVEAU TOUR DE JEU
     await battleFound.setCurrentTurn(remainingTurns[0].Character); // Edite Tour Courant
+
     io.emit('nextTurn', remainingTurns[0].Character.firstname); // => IO Event
     response.status(200).json({ message: "Le tour a bien été joué !" });
   }

@@ -33,7 +33,7 @@ export default (connection, DataTypes) => {
             }
         },
         {
-            timestamps: false,
+            timestamps: true,
         }
     );
 };

@@ -419,6 +419,7 @@ const restoreHealth = async (request, response) => {
 export {
     getAllBattles,
     getOneBattle,
+    getLastActiveBattle,
     addBattle,
     editBattle,
     deleteBattle,

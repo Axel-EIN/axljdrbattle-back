@@ -1,4 +1,4 @@
-import { Character, User } from "../models/index.js"; // Modèle initialisé et connecté à la base données Sequelize
+import { Character, Participation, User } from "../models/index.js"; // Modèle initialisé et connecté à la base données Sequelize
 import bcrypt from "bcrypt"; // Bibliothèque bcrypt pour crypter le mot de passe
 import jwt from "jsonwebtoken"; // Bibliothèque jwt pour créer le cookie/token
 import { ENV } from "./../../config.js";
@@ -26,7 +26,9 @@ const getAllUsers = async (request, response) => {
 
 const getOneUser = async (request, response) => {
   try {
-    const userFound = await User.findByPk(request.params.id);
+    const userFound = await User.findByPk(request.params.id, { include: [
+        {model: Character, include: [Participation]}
+    ]});
     if (!userFound) return response.status(404).json({ error: "Cette utilisateur n'existe pas !" });
     response.status(200).json(userFound);
   } catch (error) {

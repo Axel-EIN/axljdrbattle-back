@@ -1,6 +1,7 @@
 import { Battle } from "../models/index.js"; // Modèle Battle initialisé
 import { Participation } from "../models/index.js"; // Modèle Participation initialisé
 import { Character } from "../models/index.js"; // Modèle Character initialisé
+import { User } from "../models/index.js"; // Modèle User initialisé
 import { io } from "../services/socket.js"; // Service SocketIO
 import { uniqueValueArray } from "../utils/utils.js";
 import { reformatValueTeam } from "../utils/utils.js";
@@ -28,7 +29,7 @@ const getAllBattles = async (request, response) => {
 const getOneBattle = async (request, response) => {
     try {
       const battleFound = await Battle.findByPk(request.params.id, { include: [
-        {model: Participation, include: [Character]},
+        {model: Participation, include: [ {model: Character, include: [User] } ]},
         {model: Character, as: 'CurrentTurn', include: [ {model: Participation, where: { battle_id: request.params.id } } ]}
       ]});
       if (!battleFound)

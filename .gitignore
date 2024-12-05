@@ -1,5 +1,7 @@
 node_modules
 .env
 package-lock.json
-public/images
+public/images/avatars
+public/images/portraits
+public/images/illustrations
 test.js

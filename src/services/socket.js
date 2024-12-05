@@ -1,12 +1,16 @@
 import app from './../../app.js'; // Importation du serveur express crée avec sa config (routes, controlleur)
 import http from "http";
 import { Server } from "socket.io"; // Importation du module server de socketIO
+import { ENV } from "./../../config.js";
 
 const server = http.createServer(app); // Creation d'un serveur http à partir sur serveur express
 
 const io = new Server(server, { // Création d'un serveur Web SocketIO en autorisant les cors sur 5173
   cors: {
-    origin: "http://localhost:5173",
+    origin: ENV.WEB_APP_URL,
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true
   },
 });
 

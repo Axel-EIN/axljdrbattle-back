@@ -150,8 +150,13 @@ const loginUser = async (request, response) => {
 
     // Création du Token JWT
     const token = jwt.sign({ id: userFound.id }, ENV.TOKEN, { expiresIn: "24h" } );
-    response.cookie("access_token", token, { httpOnly: true, secure: true, sameSite: "None" }).status(200).json(userFound); // renvoi de l'utilisateur en objet
-    // renvoi du cookier access token jwt, sameSite peut être 'strict' or 'lax or None'
+    response.cookie("access_token", token, {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'None',
+        partitioned: true,
+    }).status(200).json(userFound); // renvoi de l'utilisateur en objet
+    // renvoi du cookie access token jwt, sameSite peut être 'strict' or 'lax or None'
   } catch (error) {
     console.log(error);
     response.status(500).json({ error: "Erreur interne lors de la connection !" });
@@ -166,7 +171,7 @@ const loginUser = async (request, response) => {
 const logoutUser = async (request, response) => {
   try {
     if (!request.user) return response.status(403).json({ error: "Vous devez être connecté pour pouvoir vous deconnecter !" });
-    response.clearCookie("access_token", { httpOnly: true }) // on détruit le cookie
+    response.clearCookie("access_token", { httpOnly: true, partitioned: true, secure: true, sameSite: 'None',}, ) // on détruit le cookie
       .status(200).json({ message: "L'utilisateur a bien été déconnecté !" });
   } catch (error) {
     console.log(error);

@@ -10,4 +10,5 @@ export const ENV = { // Exporte la constante ENV avec les infos
     DB_USER: process.env.DB_USER,
     DB_NAME: process.env.DB_NAME,
     DB_PASSWORD: process.env.DB_PASSWORD,
+    WEB_APP_URL: process.env.WEB_APP_URL,
 };

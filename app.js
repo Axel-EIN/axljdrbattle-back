@@ -8,6 +8,7 @@
 
 import express from 'express';
 import cookieParser from 'cookie-parser'; // Module pour pouvoir lire les cookies
+import { ENV } from './config.js'; // Import des variables d'environement
 
 // Importation des routes
 import userRouter from './src/routes/user.route.js';
@@ -23,14 +24,14 @@ app.use(express.json()); // Pour lire les données JSON
 app.use(cookieParser()); // Pour parser les cookies
 
 app.use((requete, reponse, next) => { // Methode pour faire fonctionner les cors
-    reponse.setHeader("Access-Control-Allow-Origin", "http://localhost:5173");
+    reponse.setHeader("Access-Control-Allow-Origin", ENV.WEB_APP_URL);
     reponse.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
     reponse.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
     reponse.setHeader("Access-Control-Allow-Credentials", true);
     return next();
 });
 
-// Middleware qui rend le dossier /public accessible sur http://localhost:8080/
+// Middleware qui rend le dossier /public accessible sur la machine local
 app.use(express.static('public'));
 
 // Middleware pour connecter les routes

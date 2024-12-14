@@ -301,10 +301,7 @@ const playTurn = async (request, response) => {
             await delay(1000);
             const targetParticipation = battleParticipations.find(item => item.dataValues.character_id == targetCharacterID);
 
-            if (targetParticipation.dataValues.is_out === true) {
-                console.log('========== IL ETAIT DEJA MORT !!! =======');
-                return;
-            }
+            if (targetParticipation.dataValues.is_out === true) return;
 
             let atkRoll = Math.floor(30 * Math.random());
     
@@ -318,7 +315,9 @@ const playTurn = async (request, response) => {
         
                 await targetParticipation.Character.update({ health: modifiedHealth });
                 await delay(1000);
-                io.emit('damageRolled', currentParticipation.Character.dataValues.firstname, targetParticipation.Character.dataValues.firstname, atkRoll, targetParticipation.current_tn, damage, nthAttack, targetParticipation.character_id);
+                io.emit('damageRolled', currentParticipation.Character.dataValues.firstname,
+                    targetParticipation.Character.dataValues.firstname, atkRoll,
+                    targetParticipation.current_tn, damage, nthAttack, targetParticipation.character_id);
         
                 // Si vie = 0, out
                 if (modifiedHealth == 0) {
@@ -327,13 +326,12 @@ const playTurn = async (request, response) => {
                         await targetParticipation.update({ is_out: true });
                         await delay(1000);
                         io.emit('isOut', targetParticipation.Character.dataValues.firstname);
-                    } else {
-                        console.log("************========== IL ETAIT DEJA MORT LE PAUVRE !!! ==========**************");
                     }
                 }
             } else {
                 await delay(1000);
-                io.emit('dodgedAttack', currentParticipation.Character.dataValues.firstname, targetParticipation.Character.dataValues.firstname, atkRoll, targetParticipation.dataValues.current_tn);
+                io.emit('dodgedAttack', currentParticipation.Character.dataValues.firstname,
+                    targetParticipation.Character.dataValues.firstname, atkRoll, targetParticipation.dataValues.current_tn);
             }
         }  
 
@@ -357,7 +355,8 @@ const playTurn = async (request, response) => {
 
     // Calcul Tours Restants
     let remainingTurns = battleParticipations.filter(
-      (p) => p.dataValues.is_played === false && p.dataValues.is_out === false).sort((a,b) =>  b.dataValues.initiative - a.dataValues.initiative);
+      (p) => p.dataValues.is_played === false && p.dataValues.is_out === false).sort((a,b) => 
+        b.dataValues.initiative - a.dataValues.initiative);
 
     // Fin du Round, Début d'un Nouveau Round
     if (remainingTurns.length === 0) { // Tout le monde a joué
@@ -366,7 +365,8 @@ const playTurn = async (request, response) => {
         io.emit('newRound', battleFound.current_round + 1);
         battleParticipations.forEach(async (participation) =>
             await participation.update({ is_played: false })); // Réinitialisation
-        remainingTurns = battleParticipations.filter(p => p.dataValues.is_out === false).sort ((a, b) => b.dataValues.initiative - a.dataValues.initiative);
+        remainingTurns = battleParticipations.filter(p => p.dataValues.is_out === false).sort((a, b) =>
+            b.dataValues.initiative - a.dataValues.initiative);
     }
     
     // Fonction pour créer un délai (en millisecondes)

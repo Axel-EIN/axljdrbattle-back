@@ -308,7 +308,7 @@ const playTurn = async (request, response) => {
             if (currentParticipation.dataValues.stance == 'assault') atkRoll += 10;
     
             if (atkRoll >= targetParticipation.dataValues.current_tn) {
-                const baseDamage = 10;
+                const baseDamage = 30;
                 const damage = baseDamage + Math.floor(20 * Math.random());
                 let modifiedHealth = targetParticipation.Character.dataValues.health - damage;
                 if (modifiedHealth < 0) modifiedHealth = 0;

@@ -27,6 +27,11 @@ export default (connection, DataTypes) => {
                 type:   DataTypes.ENUM,
                 values: ['user', 'gamemaster', 'admin'],
                 defaultValue: 'user'
+            },
+            isVerify: {
+                type: DataTypes.BOOLEAN,
+                allowNull: false,
+                defaultValue: false,
             }
         },
         {

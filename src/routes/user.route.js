@@ -5,6 +5,7 @@ import multer from '../middlewares/multer.js'; // Bibliothèque Middleware qui r
 
 import {
   registerUser,
+  verifyEmail,
   addUser,
   getAllUsers,
   getOneUser,
@@ -18,6 +19,7 @@ import {
 const router = express.Router();
 
 router.post("/register", registerUser);
+router.put("/verify/email/:token", verifyEmail);
 router.get("/all", getAllUsers);
 router.get("/one/:id", getOneUser);
 router.post("/add", verifyToken, verifyAdmin, multer, addUser);

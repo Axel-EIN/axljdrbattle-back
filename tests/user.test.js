@@ -55,20 +55,27 @@ describe('Tests for registerUser function', () => {
 
   beforeEach(() => {
     User.create = jest.fn(); // prend le contrôle de la méthode User.create en la mockant avec Jest
-    User.create.mockImplementation((args) => User.build(args)); // Implémente la call back pour build le user à la place de create
+    User.create.mockResolvedValue(userFound); // Demande à User.create de toujours renvoyer userFound
     bcrypt.hash = jest.fn(); // prend le contrôle de la méthode bcrypt.hash en la mockant avec Jest
     bcrypt.hash.mockResolvedValue('hashed-password'); // Implémente en retour une chaîne de caractère fixe 'hashed-passowrd'
+    const mockedJWToken = 'mocked-jwt-token'
+    jwt.sign = jest.fn();
+    jwt.sign.mockReturnValue(mockedJWToken); // Assure que la fonction jwt sign crée un faux token
   });
 
-  test('for valid user : should call User.create with hashed password, return status 201 and a confirmation message', async () => {
+  test('valid user : call User.create with hashed password, sendMail with jwt token created, return status 201 and message', async () => {
     const mockedRequest = () => { return { body: testValidUser } }; // Simule la requete avec en req.body l'objet testValidUser
     const req = mockedRequest();
     await registerUser(req, res);
+    expect(bcrypt.hash).toHaveBeenCalledTimes(1);
+    expect(bcrypt.hash).toHaveBeenCalledWith(testValidUser.password, 10);
     expect(User.create).toHaveBeenCalledTimes(1); // Vérifie si User.create a bien été appellé une fois
     expect(User.create).toHaveBeenCalledWith({ // Vérifie si User.create a bien été appellé avec l'utilisateur et son mot de passe hashé
       ...testValidUser,
       password: 'hashed-password',
+      isVerify: false,
     });
+    expect(jwt.sign).toHaveBeenCalledTimes(1);
     expect(res.status).toHaveBeenCalledWith(201); // Vérifie si la méthode status de la réponse a bien été lancé avec le code 201
     expect(res.json).toHaveBeenCalledWith({ message: "L'Utilisateur a bien été inscrit !" }); // Vérifie si la méthode json de la réponse a bien été lancé avec le message
   });

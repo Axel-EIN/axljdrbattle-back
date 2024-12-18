@@ -66,6 +66,29 @@ const registerUser = async (request, response) => {
 };
 
 
+// ====================
+// === VERIFY EMAIL ===
+// ====================
+
+const verifyEmail = async (request, response) => {
+    try {
+        const { token } = request.params;
+
+        const decoded = jwt.verify(token, ENV.TOKEN);
+
+        if (decoded) {
+            const userFound = await User.findByPk(decoded.id);
+            await userFound.update({ isVerify: true });
+        }
+
+        response.status(201).json({ message: "L'Utilisateur a bien été validé !" });
+    } catch (error) {
+        console.log(error);
+        response.status(500).json({ error: "Erreur interne lors de la validation du token !" });
+    }
+  };
+
+
 // ================
 // === ADD USER ===
 // ================
@@ -206,6 +229,7 @@ const getCurrentUser = (request, response) => {
 
 export {
   registerUser,
+  verifyEmail,
   addUser,
   getAllUsers,
   getOneUser,

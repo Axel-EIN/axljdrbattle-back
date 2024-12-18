@@ -178,6 +178,8 @@ const loginUser = async (request, response) => {
     ]});
     if (!userFound) return response.status(404).json({ error: "Cette utilisateur n'existe pas !" });
 
+    if (!userFound.isVerify) return response.status(403).json({ error: "Veuillez d'abord vérifier votre email !" });
+
     const passwordCompareResult = await bcrypt.compare(request.body.password, userFound.password);
     if (!passwordCompareResult) return response.status(400).json({ error: "Les identifiants sont inccorects !" });
 

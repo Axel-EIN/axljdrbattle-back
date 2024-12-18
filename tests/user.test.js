@@ -25,6 +25,16 @@ const testValidUser = {
 }
 const userFound = User.build({...testValidUser, id: 1});
 
+const testVerifiedUser = {
+    login: 'testLogin',
+    password: 'hashed-password',
+    email: 'test@test.mail',
+    firstname: 'prenomDeTest',
+    role: 'user',
+    isVerify: true,
+}
+const buildedVerifiedUser = User.build({...testVerifiedUser, id: 1});
+
 const testUnvalidUser = {
   login: 'Admin',
   password: null,
@@ -409,13 +419,13 @@ describe('Tests for loginUser function', () => {
 
   beforeEach(() => {
     User.findOne = jest.fn();
-    User.findOne.mockImplementation(() => { return userFound });
+    User.findOne.mockImplementation(() => { return buildedVerifiedUser });
     bcrypt.compare = jest.fn();
     jwt.sign = jest.fn();
   });
 
   test('case found user : should call User.findOne, then compare password, then create a jwt token, and return status 200, with a cookie and userFound', async () => {
-    const mockedRequest = () => { return { body: { login : testValidUser.login } } };
+    const mockedRequest = () => { return { body: { login : buildedVerifiedUser.login } } };
     const req = mockedRequest();
     bcrypt.compare.mockResolvedValue(true);
     const mockedJWToken = 'mocked-jwt-token'
@@ -425,7 +435,7 @@ describe('Tests for loginUser function', () => {
     expect(bcrypt.compare).toHaveBeenCalledTimes(1);
     expect(jwt.sign).toHaveBeenCalledTimes(1);
     expect(res.status).toHaveBeenCalledWith(200);
-    expect(res.json).toHaveBeenCalledWith(userFound);
+    expect(res.json).toHaveBeenCalledWith(buildedVerifiedUser);
     expect(res.cookie).toHaveBeenCalledWith("access_token", mockedJWToken, { httpOnly: true, secure: true, sameSite: 'None', partitioned: true });
   });
 

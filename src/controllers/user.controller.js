@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken"; // Bibliothèque jwt pour créer le cookie/token
 import { ENV } from "./../../config.js";
 import userFieldCheck from "../utils/userfieldcheck.js";
 import { removeFile } from "../utils/managefiles.js";
+import { sendMailToUser } from "../services/nodemailer.js";
 
 // =====================
 // === GET ALL USERS ===
@@ -52,7 +53,11 @@ const registerUser = async (request, response) => {
     const cleanedUser = userFieldCheck(request.body); // utilitaire pour enlever les prop. vide ou null
     if (!cleanedUser.password) return response.status(500).json({ error: "Erreur, il n'y a pas de mot de passe !" }); // Créer la fonction Erreur dans userFieldCheck avec ThrowError?
     cleanedUser.password = await bcrypt.hash(cleanedUser.password, 10);
-    await User.create({ ...cleanedUser, role: "user" }); // On force le role user à l'inscription
+    const userFound = await User.create({ ...cleanedUser, role: "user", isVerify: false }); // On force le role user à l'inscription
+
+    const verifyToken = jwt.sign({ id: userFound.id }, ENV.TOKEN, { expiresIn: "10m" } );
+    sendMailToUser(userFound, verifyToken);
+
     response.status(201).json({ message: "L'Utilisateur a bien été inscrit !" });
   } catch (error) {
     console.log(error);

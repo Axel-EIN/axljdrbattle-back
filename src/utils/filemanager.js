@@ -15,10 +15,12 @@ export function removeFile(publicFilePath) {
   });
 }
 
-export function checkAndCreateDir(publicDirPath) {
-  const absoluteDirectoryPath = __dirname + '/../..' + '/public/' + publicDirPath;
-  if ( !fs.existsSync(absoluteDirectoryPath) ) {
-    fs.mkdirSync(absoluteDirectoryPath);
-    console.log('Le dossier' + ' ' + publicDirPath + ' ' + 'a bien été crée !');
-  }
+export function checkAndCreateDir(pathRelativeToRoot) {
+    const absolutePath = __dirname + '/../../' + pathRelativeToRoot;
+    if ( !fs.existsSync(absolutePath) ) {
+        fs.mkdirSync(absolutePath);
+        console.log(`Le dossier a ${absolutePath} a bien été crée !`);
+        return;
+    }
+    console.log(`Le dossier ${absolutePath} existait déjà !`);
 }

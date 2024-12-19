@@ -17,4 +17,6 @@ export const ENV = { // Exporte la constante ENV avec les infos
     MAIL_USER: process.env.MAIL_USER,
     MAIL_PASSWORD: process.env.MAIL_PASSWORD,
     MAIL_TO: process.env.MAIL_TO,
+    API_KEY_MAILGUN: process.env.API_KEY_MAILGUN,
+    DOMAIN_MAILGUN: process.env.DOMAIN_MAILGUN,
 };

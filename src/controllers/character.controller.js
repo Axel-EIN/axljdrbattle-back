@@ -1,6 +1,6 @@
 import { Character } from "../models/index.js"; // Importation de l'Objet Character initialisé et connecté à la base de données Sequelize
 import { User } from "../models/index.js"; // Importation de l'Objet User initialisé et connecté à la base de données Sequelize
-import { removeFile } from "../utils/managefiles.js"; // Importation de la fonction utilisate pour effacer des fichiers images
+import { removeFile } from "../utils/filemanager.js";
 
 // ===============================
 // === RETRIEVE ALL CHARACTERS ===

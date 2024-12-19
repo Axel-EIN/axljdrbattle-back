@@ -2,8 +2,8 @@ import { Character, Participation, User } from "../models/index.js"; // Modèle 
 import bcrypt from "bcrypt"; // Bibliothèque bcrypt pour crypter le mot de passe
 import jwt from "jsonwebtoken"; // Bibliothèque jwt pour créer le cookie/token
 import { ENV } from "./../../config.js";
-import userFieldCheck from "../utils/userfieldcheck.js";
-import { removeFile } from "../utils/managefiles.js";
+import { cleanUser } from "../utils/cleaner.js";
+import { removeFile } from "../utils/filemanager.js";
 import { sendMailToUser } from "../services/nodemailer.js";
 
 // =====================
@@ -50,8 +50,8 @@ const getOneUser = async (request, response) => {
 
 const registerUser = async (request, response) => {
   try {
-    const cleanedUser = userFieldCheck(request.body); // utilitaire pour enlever les prop. vide ou null
-    if (!cleanedUser.password) return response.status(500).json({ error: "Erreur, il n'y a pas de mot de passe !" }); // Créer la fonction Erreur dans userFieldCheck avec ThrowError?
+    const cleanedUser = cleanUser(request.body); // utilitaire pour enlever les prop. vide ou null
+    if (!cleanedUser.password) return response.status(500).json({ error: "Erreur, il n'y a pas de mot de passe !" });
     cleanedUser.password = await bcrypt.hash(cleanedUser.password, 10);
     const userFound = await User.create({ ...cleanedUser, role: "user", isVerify: false }); // On force le role user à l'inscription
 
@@ -95,7 +95,7 @@ const verifyEmail = async (request, response) => {
 
 const addUser = async (request, response) => {
   try {
-    const cleanedUser = userFieldCheck(request.body); // utilitaire pour enlever les prop. vide ou null
+    const cleanedUser = cleanUser(request.body); // utilitaire pour enlever les prop. vide ou null
     if (!cleanedUser.password) return response.status(500).json({ error: "Erreur, il n'y a pas de mot de passe !" });
     cleanedUser.password = await bcrypt.hash(cleanedUser.password, 10);
 
@@ -122,7 +122,7 @@ const editUser = async (request, response) => {
 
     if (!userFound) return response.status(404).json({ error: "Cette utilisateur n'existe pas !" });
 
-    const cleanedUser = userFieldCheck(request.body); // utilitaire pour enlever les prop. vide ou null
+    const cleanedUser = cleanUser(request.body); // utilitaire pour enlever les prop. vide ou null
 
     if (userFound.login == 'Admin' && cleanedUser.role && cleanedUser.role != 'admin') // Protection pour les droits de l'administrateur
       return response.status(403).json({ error: "Vous ne pouvez enlevez les droits à l'Administrateur original !" });
